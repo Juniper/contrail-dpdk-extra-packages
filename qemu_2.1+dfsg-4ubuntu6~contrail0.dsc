@@ -29,14 +29,14 @@ Package-List:
  qemu-user-static deb otherosfs optional
  qemu-utils deb otherosfs optional
 Checksums-Sha1: 
- d0c0314af2b710cf3dbd91522963cc0eefa51390 5163316 qemu_2.1+dfsg.orig.tar.xz
- b402e04deefa436e50e185f118d4ae5ce5d4c6a2 88138 qemu_2.1+dfsg-4ubuntu6~contrail0.debian.tar.gz
+ 0dd2fc3a3c4577677711af6c80ed1b1c909f35db 5261832 qemu_2.1+dfsg.orig.tar.xz
+ 4a166329bec773d2993c8621880421896cd48b89 87824 qemu_2.1+dfsg-4ubuntu6~contrail0.debian.tar.gz
 Checksums-Sha256: 
- 34b610c2538c7617638b8f1bdedf8a96ca2ff8cd8ad97b920a70c4d8d481d97f 5163316 qemu_2.1+dfsg.orig.tar.xz
- 41575de26cb77ee268ff172958fe23ecb30e3de387bfa1097cb8c46150f38ea0 88138 qemu_2.1+dfsg-4ubuntu6~contrail0.debian.tar.gz
+ aed3f5e73ca83a1d26b079054cf614eea86e9a74048c422b641e2aa856428aa1 5261832 qemu_2.1+dfsg.orig.tar.xz
+ a81450384864a5c8f79e10a70d5db596722eca71a1b7a843ce28b280b1a43903 87824 qemu_2.1+dfsg-4ubuntu6~contrail0.debian.tar.gz
 Files: 
- eae7dcf964948cb0f4ed58d0488ae0de 5163316 qemu_2.1+dfsg.orig.tar.xz
- dfda737814907da6ac9146fee65fffe8 88138 qemu_2.1+dfsg-4ubuntu6~contrail0.debian.tar.gz
+ 010ea38ec5f822bb817df1e59267379c 5261832 qemu_2.1+dfsg.orig.tar.xz
+ cfdd688c0225ece8d72e007cce2add2c 87824 qemu_2.1+dfsg-4ubuntu6~contrail0.debian.tar.gz
 Debian-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-qemu/qemu.git
 Debian-Vcs-Git: git://anonscm.debian.org/pkg-qemu/qemu.git
 Original-Maintainer: Debian QEMU Team <pkg-qemu-devel@lists.alioth.debian.org>
