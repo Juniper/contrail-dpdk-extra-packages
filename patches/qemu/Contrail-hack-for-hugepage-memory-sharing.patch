@@ -1,0 +1,14 @@
+--- qemu-2.1+dfsg.orig/exec.c
++++ qemu-2.1+dfsg/exec.c
+@@ -1077,7 +1077,10 @@ static void *file_ram_alloc(RAMBlock *bl
+     }
+ 
+     area = mmap(0, memory, PROT_READ | PROT_WRITE,
+-                (block->flags & RAM_SHARED ? MAP_SHARED : MAP_PRIVATE),
++                MAP_SHARED,
++    /* TODO: Temporary HACK for the demo. Need to add support for
++     *       -object memory-backend-file in nova.
++     *          (block->flags & RAM_SHARED ? MAP_SHARED : MAP_PRIVATE), */
+                 fd, 0);
+     if (area == MAP_FAILED) {
+         error_setg_errno(errp, errno,
