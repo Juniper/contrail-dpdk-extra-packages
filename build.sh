@@ -33,7 +33,7 @@ done
 # Build
 for dir in $src_dir_list; do
     cd $dir
-    dpkg-buildpackage -uc -b -j5
+    dpkg-buildpackage -uc -b -j5 || exit 1
     cd ../
 done
 
