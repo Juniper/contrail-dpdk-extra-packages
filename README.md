@@ -27,7 +27,10 @@ The packaging scripts have been based on:
 
 * libvirt - http://packages.ubuntu.com/source/utopic/libvirt
 * libvirt-python - http://packages.ubuntu.com/source/utopic/libvirt-python
-* qemu - http://packages.ubuntu.com/source/utopic/qemu
+* qemu:
+  http://archive.ubuntu.com/ubuntu/pool/main/q/qemu/qemu_2.2+dfsg-5expubuntu8.dsc
+  http://archive.ubuntu.com/ubuntu/pool/main/q/qemu/qemu_2.2+dfsg.orig.tar.xz
+  http://archive.ubuntu.com/ubuntu/pool/main/q/qemu/qemu_2.2+dfsg-5expubuntu8.debian.tar.xz
 
 ## Usage
 
