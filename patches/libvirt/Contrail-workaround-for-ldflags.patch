@@ -1,0 +1,30 @@
+commit 39e4c1d5aa6e510c16ae204ef1ceb2922a3a8ca5
+Author: Michal Dubiel <md@semihalf.com>
+Date:   Wed Mar 25 10:40:06 2015 -0400
+
+    Workaround for LDFLAGS
+
+diff --git a/debian/rules b/debian/rules
+index df9b736..cea47dd 100755
+--- a/debian/rules
++++ b/debian/rules
+@@ -3,6 +3,7 @@
+ DEB_BUILD_PARALLEL = yes
+ 
+ #export VIR_TEST_DEBUG=1
++export DEB_LDFLAGS_MAINT_STRIP = -Wl,-Bsymbolic-functions
+ 
+ include /usr/share/cdbs/1/rules/autoreconf.mk
+ include /usr/share/cdbs/1/rules/debhelper.mk
+@@ -118,6 +119,11 @@ ifeq ($(shell dpkg --compare-versions "$(shell grep DISTRIB_RELEASE /etc/lsb-rel
+ 	DEB_DH_GENCONTROL_ARGS_libvirt-bin = -- -V'dist:Conflicts=apparmor (<< 2.8.96~2652-0ubuntu1)'
+ endif
+ 
++# There is a bug in Ubuntu 12.04's dpkg-buildpackage, which causes it to not
++# take into account exported DEB_LDFLAGS_MAINT_STRIP variable, thus this
++# explicit setting of LDFLAGS here.
++LDFLAGS := $(shell DEB_LDFLAGS_MAINT_STRIP="-Wl,-Bsymbolic-functions" dpkg-buildflags --get LDFLAGS)
++
+ binary-install/libvirt-bin::
+ 	#cp $(CURDIR)/tools/libvirt-guests.init.sh $(CURDIR)/debian/libvirt-bin.libvirt-guests.init
+ 	#cp $(CURDIR)/tools/libvirt-guests.sysconf $(CURDIR)/debian/libvirt-bin.libvirt-guests.default

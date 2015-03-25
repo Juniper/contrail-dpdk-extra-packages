@@ -21,12 +21,17 @@ Files explanation:
 
 * `update_cfg_file.sh` - A script to update the MD5 sum fields in \*.cfg files
   (contrail packager configuration files) with the values for newly build
-  packages. 
+  packages.
 
 The packaging scripts have been based on:
 
-* libvirt - http://packages.ubuntu.com/source/utopic/libvirt
+* libvirt
+  http://archive.ubuntu.com/ubuntu/pool/main/libv/libvirt/libvirt_1.2.12-0ubuntu7.dsc
+  http://archive.ubuntu.com/ubuntu/pool/main/libv/libvirt/libvirt_1.2.12.orig.tar.gz
+  http://archive.ubuntu.com/ubuntu/pool/main/libv/libvirt/libvirt_1.2.12-0ubuntu7.debian.tar.xz
+
 * libvirt-python - http://packages.ubuntu.com/source/utopic/libvirt-python
+
 * qemu:
   http://archive.ubuntu.com/ubuntu/pool/main/q/qemu/qemu_2.2+dfsg-5expubuntu8.dsc
   http://archive.ubuntu.com/ubuntu/pool/main/q/qemu/qemu_2.2+dfsg.orig.tar.xz
