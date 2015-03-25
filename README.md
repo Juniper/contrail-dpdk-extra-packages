@@ -25,12 +25,12 @@ Files explanation:
 
 The packaging scripts have been based on:
 
-* libvirt
+* libvirt:
   http://archive.ubuntu.com/ubuntu/pool/main/libv/libvirt/libvirt_1.2.12-0ubuntu7.dsc
   http://archive.ubuntu.com/ubuntu/pool/main/libv/libvirt/libvirt_1.2.12.orig.tar.gz
   http://archive.ubuntu.com/ubuntu/pool/main/libv/libvirt/libvirt_1.2.12-0ubuntu7.debian.tar.xz
 
-* libvirt-python
+* libvirt-python:
   http://archive.ubuntu.com/ubuntu/pool/main/libv/libvirt-python/libvirt-python_1.2.12-0ubuntu1.dsc
   http://archive.ubuntu.com/ubuntu/pool/main/libv/libvirt-python/libvirt-python_1.2.12.orig.tar.gz
   http://archive.ubuntu.com/ubuntu/pool/main/libv/libvirt-python/libvirt-python_1.2.12-0ubuntu1.debian.tar.xz
@@ -53,20 +53,22 @@ The packaging scripts have been based on:
 
 1. Install required packages:
 
-        apt-get install build-essential cdbs debhelper device-tree-compiler
-        dh-autoreconf dnsmasq-base dwarves libaio-dev libapparmor-dev
-        libasound2-dev libattr1-dev libaudit-dev libavahi-client-dev
-        libbluetooth-dev libbrlapi-dev libcap-ng-dev libcurl4-gnutls-dev
-        libdevmapper-dev libfdt-dev libgcrypt11-dev libgnutls-dev
-        libncurses5-dev libnetcf-dev libnl-3-dev libnl-route-3-dev libnuma-dev
-        libparted0-dev libpcap0.8-dev libpciaccess-dev libpixman-1-dev
-        libpng12-dev libpolkit-gobject-1-dev libpulse-dev librados-dev
-        librbd-dev libreadline-dev libsasl2-dev libsdl1.2-dev libseccomp-dev
+        apt-get install build-essential cdbs debhelper
+        device-tree-compiler dh-autoreconf dnsmasq-base dwarves libaio-dev
+        libapparmor-dev libasound2-dev libattr1-dev libaudit-dev
+        libavahi-client-dev libbluetooth-dev libbrlapi-dev libcap-ng-dev
+        libcurl4-gnutls-dev libdevmapper-dev libfdt-dev libgcrypt11-dev
+        libgnutls-dev libncurses5-dev libnetcf-dev libnl-3-dev libnl-route-3-dev
+        libnuma-dev libparted0-dev libpcap0.8-dev libpciaccess-dev
+        libpixman-1-dev libpng12-dev libpolkit-gobject-1-dev
+        libpolkit-gobject-1-dev libpulse-dev librados-dev librbd-dev
+        libreadline-dev libsasl2-dev libsdl1.2-dev libseccomp-dev
         libspice-protocol-dev libspice-server-dev libudev-dev libusb-1.0-0-dev
         libusbredirparser-dev libvirt-dev libx11-dev libxen-dev libxml2-dev
-        libxml2-utils libyajl-dev nfs-common open-iscsi-utils policykit-1
-        python-all-dev python-lxml python-nose radvd texinfo uuid-dev
-        xfslibs-dev zlib1g-dev 
+        libxml2-utils libxml-libxml-perl libyajl-dev nfs-common open-iscsi-utils
+        policykit-1 python-all-dev python-lxml python-nose radvd texinfo
+        uuid-dev w3c-dtd-xhtml xfslibs-dev xsltproc zlib1g-dev
+
 
 1. Run build process
 
