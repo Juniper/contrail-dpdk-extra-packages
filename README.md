@@ -30,7 +30,10 @@ The packaging scripts have been based on:
   http://archive.ubuntu.com/ubuntu/pool/main/libv/libvirt/libvirt_1.2.12.orig.tar.gz
   http://archive.ubuntu.com/ubuntu/pool/main/libv/libvirt/libvirt_1.2.12-0ubuntu7.debian.tar.xz
 
-* libvirt-python - http://packages.ubuntu.com/source/utopic/libvirt-python
+* libvirt-python
+  http://archive.ubuntu.com/ubuntu/pool/main/libv/libvirt-python/libvirt-python_1.2.12-0ubuntu1.dsc
+  http://archive.ubuntu.com/ubuntu/pool/main/libv/libvirt-python/libvirt-python_1.2.12.orig.tar.gz
+  http://archive.ubuntu.com/ubuntu/pool/main/libv/libvirt-python/libvirt-python_1.2.12-0ubuntu1.debian.tar.xz
 
 * qemu:
   http://archive.ubuntu.com/ubuntu/pool/main/q/qemu/qemu_2.2+dfsg-5expubuntu8.dsc
