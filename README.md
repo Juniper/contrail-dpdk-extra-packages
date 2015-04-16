@@ -53,22 +53,21 @@ The packaging scripts have been based on:
 
 1. Install required packages:
 
-        apt-get install build-essential cdbs debhelper
-        device-tree-compiler dh-autoreconf dnsmasq-base dwarves libaio-dev
-        libapparmor-dev libasound2-dev libattr1-dev libaudit-dev
-        libavahi-client-dev libbluetooth-dev libbrlapi-dev libcap-ng-dev
-        libcurl4-gnutls-dev libdevmapper-dev libfdt-dev libgcrypt11-dev
-        libgnutls-dev libncurses5-dev libnetcf-dev libnl-3-dev libnl-route-3-dev
-        libnuma-dev libparted0-dev libpcap0.8-dev libpciaccess-dev
-        libpixman-1-dev libpng12-dev libpolkit-gobject-1-dev
+        apt-get install acpica-tools build-essential cdbs debhelper
+        device-tree-compiler dh-autoreconf dnsmasq-base dwarves ebtables
+        libaio-dev libapparmor-dev libasound2-dev libattr1-dev libaudit-dev
+        libavahi-client-dev libbluetooth-dev libbrlapi-dev libcap-dev
+        libcap-ng-dev libcurl4-gnutls-dev libdevmapper-dev libfdt-dev
+        libgcrypt11-dev libgnutls-dev libjpeg-dev libncurses5-dev libnetcf-dev
+        libnl-3-dev libnl-route-3-dev libnuma-dev libparted0-dev libpcap0.8-dev
+        libpciaccess-dev libpixman-1-dev libpng12-dev libpolkit-gobject-1-dev
         libpolkit-gobject-1-dev libpulse-dev librados-dev librbd-dev
         libreadline-dev libsasl2-dev libsdl1.2-dev libseccomp-dev
         libspice-protocol-dev libspice-server-dev libudev-dev libusb-1.0-0-dev
         libusbredirparser-dev libvirt-dev libx11-dev libxen-dev libxml2-dev
         libxml2-utils libxml-libxml-perl libyajl-dev nfs-common open-iscsi-utils
-        policykit-1 python-all-dev python-lxml python-nose radvd texinfo
-        uuid-dev w3c-dtd-xhtml xfslibs-dev xsltproc zlib1g-dev
-
+        policykit-1 python-all-dev python-lxml python-nose qemu-utils radvd
+        texinfo uuid-dev w3c-dtd-xhtml xfslibs-dev xsltproc zlib1g-dev
 
 1. Run build process
 
