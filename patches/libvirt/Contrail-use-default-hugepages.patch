@@ -1,0 +1,53 @@
+commit 79f2dae025c7cbbfe560d35c4ccf8c86912866ec
+Author: Michal Dubiel <md@semihalf.com>
+Date:   Thu Apr 2 10:57:56 2015 -0400
+
+    qemu: Use default hugepages available on host if size is not specified
+    
+    If domain is defined with the hugepage memory backing but without
+    explicitly specifying the pages' size, in example:
+    <memoryBacking>
+        <hugepages/>
+    </memoryBacking>
+    Use hugepages available (mounted) on host.
+    
+    The same behaviour is already used in libvirt when specifying hugepages
+    without numa configuration. This commit introduces it for numa configs.
+
+diff --git a/src/qemu/qemu_command.c b/src/qemu/qemu_command.c
+index fcb730a..9b71658 100644
+--- a/src/qemu/qemu_command.c
++++ b/src/qemu/qemu_command.c
+@@ -6816,16 +6816,23 @@ qemuBuildNumaArgStr(virQEMUDriverConfigPtr cfg,
+                         break;
+                 }
+ 
+-                if (j == cfg->nhugetlbfs) {
+-                    virReportError(VIR_ERR_INTERNAL_ERROR,
+-                                   _("Unable to find any usable hugetlbfs mount for %llu KiB"),
+-                                   hugepage->size);
+-                    goto cleanup;
+-                }
++                if (hugepage->size) {
++                    if (j == cfg->nhugetlbfs) {
++                        virReportError(VIR_ERR_INTERNAL_ERROR,
++                                       _("Unable to find any usable hugetlbfs mount for %llu KiB"),
++                                       hugepage->size);
++                        goto cleanup;
++                    }
+ 
+-                VIR_FREE(mem_path);
+-                if (!(mem_path = qemuGetHugepagePath(&cfg->hugetlbfs[j])))
+-                    goto cleanup;
++                    VIR_FREE(mem_path);
++                    if (!(mem_path = qemuGetHugepagePath(&cfg->hugetlbfs[j])))
++                        goto cleanup;
++                } else {
++                    VIR_FREE(mem_path);
++                    if (!(mem_path = qemuGetDefaultHugepath(cfg->hugetlbfs,
++                                                            cfg->nhugetlbfs)))
++                        goto cleanup;
++                }
+ 
+                 virBufferAsprintf(&buf,
+                                   "memory-backend-file,prealloc=yes,mem-path=%s",
