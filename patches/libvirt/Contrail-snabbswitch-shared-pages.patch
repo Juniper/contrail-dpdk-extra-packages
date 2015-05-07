@@ -1,0 +1,46 @@
+diff -upr a/src/qemu/qemu_command.c b/src/qemu/qemu_command.c
+--- a/src/qemu/qemu_command.c	2015-05-07 05:13:32.000000000 -0400
++++ b/src/qemu/qemu_command.c	2015-05-07 05:06:04.192472535 -0400
+@@ -8020,9 +8020,15 @@ qemuBuildCommandLine(virConnectPtr conn,
+             }
+         }
+ 
+-        virCommandAddArg(cmd, "-mem-prealloc");
+-        if (mem_path)
+-            virCommandAddArgList(cmd, "-mem-path", mem_path, NULL);
++        if (!mem_path) {
++            virCommandAddArg(cmd, "-mem-prealloc");
++        } else {
++            virCommandAddArg(cmd, "-object");
++            virCommandAddArgFormat(cmd,
++                                   "memory-backend-file,id=ram-node,size=%lluM,mem-path=%s,share=on",
++                                   def->mem.max_balloon / 1024, mem_path);
++            virCommandAddArgList(cmd, "-numa", "node,memdev=ram-node", NULL);
++        }
+         VIR_FREE(mem_path);
+     }
+ 
+diff -upr a/tests/qemuxml2argvdata/qemuxml2argv-hugepages.args b/tests/qemuxml2argvdata/qemuxml2argv-hugepages.args
+--- a/tests/qemuxml2argvdata/qemuxml2argv-hugepages.args	2015-01-23 06:46:24.000000000 -0500
++++ b/tests/qemuxml2argvdata/qemuxml2argv-hugepages.args	2015-05-07 05:06:04.344474723 -0400
+@@ -1,5 +1,6 @@
+ LC_ALL=C PATH=/bin HOME=/home/test USER=test LOGNAME=test QEMU_AUDIO_DRV=none \
+ /usr/bin/qemu -S -M \
+-pc -m 214 -mem-prealloc -mem-path /dev/hugepages2M/libvirt/qemu -smp 1 \
++pc -m 214 \
++-object memory-backend-file,id=ram-node,size=214M,mem-path=/dev/hugepages2M/libvirt/qemu,share=on -numa node,memdev=ram-node -smp 1 \
+ -nographic -monitor unix:/tmp/test-monitor,server,nowait -no-acpi -boot c -usb -hda \
+ /dev/HostVG/QEMUGuest1 -net none -serial none -parallel none
+diff -upr a/tests/qemuxml2argvdata/qemuxml2argv-hugepages-pages5.args b/tests/qemuxml2argvdata/qemuxml2argv-hugepages-pages5.args
+--- a/tests/qemuxml2argvdata/qemuxml2argv-hugepages-pages5.args	2015-01-23 06:46:24.000000000 -0500
++++ b/tests/qemuxml2argvdata/qemuxml2argv-hugepages-pages5.args	2015-05-07 05:06:04.344474723 -0400
+@@ -1,7 +1,7 @@
+ LC_ALL=C PATH=/bin HOME=/home/test USER=test LOGNAME=test QEMU_AUDIO_DRV=none \
+ /usr/bin/qemu -S -M pc -m 1024 \
+--mem-prealloc \
+--mem-path /dev/hugepages2M/libvirt/qemu \
++-object memory-backend-file,id=ram-node,size=1024M,mem-path=/dev/hugepages2M/libvirt/qemu,share=on \
++-numa node,memdev=ram-node \
+ -smp 2 -nographic \
+ -monitor unix:/tmp/test-monitor,server,nowait -no-acpi -boot c -usb \
+ -hda /dev/HostVG/QEMUGuest1 -net none -serial none -parallel none
