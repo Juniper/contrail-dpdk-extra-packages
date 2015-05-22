@@ -1,0 +1,58 @@
+diff -upr libvirt-1.2.12/debian/apparmor/libvirt-qemu libvirt-1.2.12/debian/apparmor/libvirt-qemu
+--- libvirt-1.2.12/debian/apparmor/libvirt-qemu	2015-02-12 21:05:12.000000000 +0100
++++ libvirt-1.2.12/debian/apparmor/libvirt-qemu	2015-05-22 14:37:34.281338645 +0200
+@@ -53,6 +53,9 @@
+   # unless you absolutely need it.
+   deny capability kill,
+ 
++  # For lttng access.
++  /{dev,run}/shm/lttng-ust-wait-5 r,
++
+   # Uncomment the following if you need access to /dev/fb*
+   #/dev/fb* rw,
+ 
+@@ -143,6 +146,7 @@
+ 
+   # for access to hugepages
+   owner "/run/hugepages/kvm/libvirt/qemu/**" rw,
++  owner "/hugepages/libvirt/qemu/**" rw,
+ 
+   # for usb access
+   /dev/bus/usb/ r,
+diff -upr libvirt-1.2.12/src/security/virt-aa-helper.c libvirt-1.2.12/src/security/virt-aa-helper.c
+--- libvirt-1.2.12/src/security/virt-aa-helper.c	2015-05-22 16:16:07.000000000 +0200
++++ libvirt-1.2.12/src/security/virt-aa-helper.c	2015-05-22 14:37:34.297338115 +0200
+@@ -595,14 +595,6 @@ valid_path(const char *path, const bool
+     } else {
+         if (stat(path, &sb) == -1)
+             return -1;
+-
+-        switch (sb.st_mode & S_IFMT) {
+-            case S_IFSOCK:
+-                return 1;
+-                break;
+-            default:
+-                break;
+-        }
+     }
+ 
+     opaths = sizeof(override)/sizeof(*(override));
+@@ -1094,6 +1086,18 @@ get_files(vahControl * ctl)
+                 goto cleanup;
+         }
+     }
++
++    for (i = 0; i < ctl->def->nnets; i++) {
++        if (ctl->def->nets[i] &&
++                ctl->def->nets[i]->type == VIR_DOMAIN_NET_TYPE_VHOSTUSER &&
++                ctl->def->nets[i]->data.vhostuser) {
++            virDomainChrSourceDefPtr vhu = ctl->def->nets[i]->data.vhostuser;
++
++            if (vah_add_file_chardev(&buf, vhu->data.nix.path, "rw",
++                       vhu->type) != 0)
++                goto cleanup;
++        }
++    }
+ 
+     if (ctl->def->virtType == VIR_DOMAIN_VIRT_KVM) {
+         for (i = 0; i < ctl->def->nnets; i++) {
