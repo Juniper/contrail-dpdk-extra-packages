@@ -1,0 +1,32 @@
+# Mirrors to use. Update these to your preferred mirror.
+MIRRORSITE="http://us.archive.ubuntu.com/ubuntu/"
+
+# Optionally set the architecture to the host architecture if none set. Note
+# that you can set your own default (i.e. ${ARCH:="i386"}).
+: ${ARCH:="$(dpkg --print-architecture)"}
+
+# Create a chroot for buildd
+DEBOOTSTRAPOPTS=("--variant=buildd" "${DEBOOTSTRAPOPTS[@]}")
+
+# Default compontnts
+COMPONENTS="main restricted universe multiverse"
+
+# Enable security and updates repos
+OTHERMIRROR="deb $MIRRORSITE $DIST-updates $COMPONENTS|deb $MIRRORSITE $DIST-security $COMPONENTS"
+
+DEBBUILDOPTS="-uc -tc -j5 -b"
+
+NAME="$DIST"
+if [ -n "${ARCH}" ]; then
+    NAME="$NAME-$ARCH"
+    DEBOOTSTRAPOPTS=("--arch" "$ARCH" "${DEBOOTSTRAPOPTS[@]}")
+fi
+BASETGZ="/var/cache/pbuilder/$NAME-base.tgz"
+# Optionally, set BASEPATH (and not BASETGZ) if using cowbuilder
+# BASEPATH="/var/cache/pbuilder/$NAME/base.cow/"
+DISTRIBUTION="$DIST"
+#BUILDRESULT="/var/cache/pbuilder/$NAME/result/"
+BUILDRESULT="$SCRIPT_DIR/debs/$NAME/"
+APTCACHE="/var/cache/pbuilder/$NAME/aptcache/"
+BUILDPLACE="/var/cache/pbuilder/build/"
+
