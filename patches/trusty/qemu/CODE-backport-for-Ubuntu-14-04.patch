@@ -1,0 +1,19 @@
+commit b7ebebd7c79e9ae9a6f33f7f2f5775b42330d153
+Author: Michal Dubiel <md@semihalf.com>
+Date:   Tue Mar 17 14:16:33 2015 -0400
+
+    Initial back port for Ubuntu 14.04
+
+diff --git a/configure b/configure
+index cea196b..5591ad3 100755
+--- a/configure
++++ b/configure
+@@ -1824,7 +1824,7 @@ fi
+ 
+ if test "$seccomp" != "no" ; then
+     if test "$cpu" = "i386" || test "$cpu" = "x86_64" &&
+-        $pkg_config --atleast-version=2.1.1 libseccomp; then
++        $pkg_config --atleast-version=2.1.0 libseccomp; then
+         libs_softmmu="$libs_softmmu `$pkg_config --libs libseccomp`"
+         QEMU_CFLAGS="$QEMU_CFLAGS `$pkg_config --cflags libseccomp`"
+ 	seccomp="yes"
