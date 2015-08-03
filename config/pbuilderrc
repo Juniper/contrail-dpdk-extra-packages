@@ -12,9 +12,14 @@ DEBOOTSTRAPOPTS=("--variant=buildd" "${DEBOOTSTRAPOPTS[@]}")
 COMPONENTS="main restricted universe multiverse"
 
 # Enable security and updates repos
-OTHERMIRROR="deb $MIRRORSITE $DIST-updates $COMPONENTS|deb $MIRRORSITE $DIST-security $COMPONENTS"
+if [ $DIST == "precise" ]; then
+    OTHERMIRROR="deb $MIRRORSITE $DIST-updates $COMPONENTS|deb $MIRRORSITE $DIST-security $COMPONENTS|deb http://ppa.launchpad.net/ubuntu-cloud-archive/icehouse-staging/ubuntu precise main"
+else
+    OTHERMIRROR="deb $MIRRORSITE $DIST-updates $COMPONENTS|deb $MIRRORSITE $DIST-security $COMPONENTS"
+    ALLOWUNTRUSTED=yes
+fi
 
-DEBBUILDOPTS="-uc -tc -j5 -b"
+DEBBUILDOPTS="-uc -j5 -b"
 
 NAME="$DIST"
 if [ -n "${ARCH}" ]; then
@@ -29,4 +34,6 @@ DISTRIBUTION="$DIST"
 BUILDRESULT="$SCRIPT_DIR/debs/$NAME/"
 APTCACHE="/var/cache/pbuilder/$NAME/aptcache/"
 BUILDPLACE="/var/cache/pbuilder/build/"
+
+HOOKDIR="$SCRIPT_DIR/config/"
 

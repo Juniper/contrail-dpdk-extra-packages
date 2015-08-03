@@ -4,11 +4,11 @@ Date:   Thu Mar 19 12:21:52 2015 -0400
 
     Reverse patch cgroup patches
 
-diff --git a/configure.ac b/configure.ac
-index 283fef5..f370475 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -2264,20 +2264,6 @@ if test "${enable_oom}" = yes; then
+Index: libvirt-1.2.12/configure.ac
+===================================================================
+--- libvirt-1.2.12.orig/configure.ac	2015-08-03 13:14:23.000000000 +0200
++++ libvirt-1.2.12/configure.ac	2015-08-03 13:15:14.000000000 +0200
+@@ -2264,20 +2264,6 @@
    AC_DEFINE([TEST_OOM], 1, [Whether malloc OOM checking is enabled])
  fi
  
@@ -29,7 +29,7 @@ index 283fef5..f370475 100644
  
  AC_ARG_ENABLE([test-locking],
    [AS_HELP_STRING([--enable-test-locking],
-@@ -3002,7 +2988,6 @@ AC_MSG_NOTICE([           DTrace: $with_dtrace])
+@@ -3002,7 +2988,6 @@
  AC_MSG_NOTICE([            numad: $with_numad])
  AC_MSG_NOTICE([      XML Catalog: $XML_CATALOG_FILE])
  AC_MSG_NOTICE([      Init script: $with_init_script])
@@ -37,11 +37,11 @@ index 283fef5..f370475 100644
  AC_MSG_NOTICE([Char device locks: $with_chrdev_lock_files])
  AC_MSG_NOTICE([   Default Editor: $DEFAULT_EDITOR])
  AC_MSG_NOTICE([])
-diff --git a/daemon/Makefile.am b/daemon/Makefile.am
-index 537a361..b95a79d 100644
---- a/daemon/Makefile.am
-+++ b/daemon/Makefile.am
-@@ -105,16 +105,14 @@ libvirtd_conf_la_CFLAGS = \
+Index: libvirt-1.2.12/daemon/Makefile.am
+===================================================================
+--- libvirt-1.2.12.orig/daemon/Makefile.am	2015-08-03 13:14:23.000000000 +0200
++++ libvirt-1.2.12/daemon/Makefile.am	2015-08-03 13:15:14.000000000 +0200
+@@ -105,16 +105,14 @@
  	$(XDR_CFLAGS) \
  	$(WARN_CFLAGS) $(PIE_CFLAGS) \
  	$(COVERAGE_CFLAGS) \
@@ -59,7 +59,7 @@ index 537a361..b95a79d 100644
  
  man8_MANS = libvirtd.8
  
-@@ -145,7 +143,7 @@ libvirtd_CFLAGS = \
+@@ -145,7 +143,7 @@
  	$(LIBXML_CFLAGS) $(GNUTLS_CFLAGS) $(SASL_CFLAGS) \
  	$(XDR_CFLAGS) $(DBUS_CFLAGS) $(LIBNL_CFLAGS) \
  	$(WARN_CFLAGS) $(PIE_CFLAGS) \
@@ -68,7 +68,7 @@ index 537a361..b95a79d 100644
  	-DQEMUD_PID_FILE="\"$(QEMUD_PID_FILE)\""
  
  libvirtd_LDFLAGS =					\
-@@ -160,7 +158,6 @@ libvirtd_LDADD =					\
+@@ -160,7 +158,6 @@
  	$(GNUTLS_LIBS)					\
  	$(SASL_LIBS)					\
  	$(DBUS_LIBS)					\
@@ -76,10 +76,10 @@ index 537a361..b95a79d 100644
  	$(LIBNL_LIBS)
  
  if WITH_DTRACE_PROBES
-diff --git a/daemon/libvirtd.c b/daemon/libvirtd.c
-index e57604f..b7f82c5 100644
---- a/daemon/libvirtd.c
-+++ b/daemon/libvirtd.c
+Index: libvirt-1.2.12/daemon/libvirtd.c
+===================================================================
+--- libvirt-1.2.12.orig/daemon/libvirtd.c	2015-08-03 13:14:23.000000000 +0200
++++ libvirt-1.2.12/daemon/libvirtd.c	2015-08-03 13:15:14.000000000 +0200
 @@ -49,7 +49,6 @@
  #include "viralloc.h"
  #include "virconf.h"
@@ -88,7 +88,7 @@ index e57604f..b7f82c5 100644
  #include "virnetserver.h"
  #include "remote.h"
  #include "virhook.h"
-@@ -1264,10 +1263,6 @@ int main(int argc, char **argv) {
+@@ -1264,10 +1263,6 @@
          exit(EXIT_FAILURE);
      }
  
@@ -99,11 +99,11 @@ index e57604f..b7f82c5 100644
      if (daemonSetupLogging(config, privileged, verbose, godaemon) < 0) {
          VIR_ERROR(_("Can't initialize logging"));
          exit(EXIT_FAILURE);
-diff --git a/src/Makefile.am b/src/Makefile.am
-index b32d65c..218d853 100644
---- a/src/Makefile.am
-+++ b/src/Makefile.am
-@@ -96,7 +96,6 @@ UTIL_SOURCES =							\
+Index: libvirt-1.2.12/src/Makefile.am
+===================================================================
+--- libvirt-1.2.12.orig/src/Makefile.am	2015-08-03 13:14:23.000000000 +0200
++++ libvirt-1.2.12/src/Makefile.am	2015-08-03 13:15:14.000000000 +0200
+@@ -96,7 +96,6 @@
  		util/virbitmap.c util/virbitmap.h		\
  		util/virbuffer.c util/virbuffer.h		\
  		util/vircgroup.c util/vircgroup.h util/vircgrouppriv.h	\
@@ -111,7 +111,7 @@ index b32d65c..218d853 100644
  		util/virclosecallbacks.c util/virclosecallbacks.h		\
  		util/vircommand.c util/vircommand.h util/vircommandpriv.h \
  		util/virconf.c util/virconf.h			\
-@@ -1031,13 +1030,12 @@ libvirt_util_la_CFLAGS = $(CAPNG_CFLAGS) $(YAJL_CFLAGS) $(LIBNL_CFLAGS) \
+@@ -1031,13 +1030,12 @@
  		$(AM_CFLAGS) $(AUDIT_CFLAGS) $(DEVMAPPER_CFLAGS) \
  		$(DBUS_CFLAGS) $(LDEXP_LIBM) $(NUMACTL_CFLAGS)	\
  		$(SYSTEMD_DAEMON_CFLAGS) $(POLKIT_CFLAGS) \
@@ -127,7 +127,7 @@ index b32d65c..218d853 100644
  
  
  noinst_LTLIBRARIES += libvirt_conf.la
-@@ -1074,9 +1072,6 @@ libvirt_xenconfig_la_CFLAGS = \
+@@ -1074,9 +1072,6 @@
  libvirt_xenconfig_la_SOURCES = $(XENCONFIG_SOURCES)
  endif WITH_XENCONFIG
  
@@ -137,11 +137,11 @@ index b32d65c..218d853 100644
  
  noinst_LTLIBRARIES += libvirt_driver.la
  libvirt_la_BUILT_LIBADD += libvirt_driver.la
-diff --git a/src/lxc/lxc_cgroup.c b/src/lxc/lxc_cgroup.c
-index 7cc448c..728e8e5 100644
---- a/src/lxc/lxc_cgroup.c
-+++ b/src/lxc/lxc_cgroup.c
-@@ -484,7 +484,7 @@ virCgroupPtr virLXCCgroupCreate(virDomainDefPtr def)
+Index: libvirt-1.2.12/src/lxc/lxc_cgroup.c
+===================================================================
+--- libvirt-1.2.12.orig/src/lxc/lxc_cgroup.c	2015-08-03 13:14:23.000000000 +0200
++++ libvirt-1.2.12/src/lxc/lxc_cgroup.c	2015-08-03 13:15:14.000000000 +0200
+@@ -484,7 +484,7 @@
                              true,
                              def->uuid,
                              NULL,
@@ -150,11 +150,11 @@ index 7cc448c..728e8e5 100644
                              true,
                              0, NULL,
                              def->resource->partition,
-diff --git a/src/lxc/lxc_controller.c b/src/lxc/lxc_controller.c
-index 12deca9..53a2c8d 100644
---- a/src/lxc/lxc_controller.c
-+++ b/src/lxc/lxc_controller.c
-@@ -2184,9 +2184,6 @@ virLXCControllerRun(virLXCControllerPtr ctrl)
+Index: libvirt-1.2.12/src/lxc/lxc_controller.c
+===================================================================
+--- libvirt-1.2.12.orig/src/lxc/lxc_controller.c	2015-08-03 13:14:23.000000000 +0200
++++ libvirt-1.2.12/src/lxc/lxc_controller.c	2015-08-03 13:15:14.000000000 +0200
+@@ -2184,9 +2184,6 @@
      if (virLXCControllerSetupResourceLimits(ctrl) < 0)
          goto cleanup;
  
@@ -164,11 +164,11 @@ index 12deca9..53a2c8d 100644
      if (virLXCControllerSetupDevPTS(ctrl) < 0)
          goto cleanup;
  
-diff --git a/src/lxc/lxc_process.c b/src/lxc/lxc_process.c
-index e804b63..89e9249 100644
---- a/src/lxc/lxc_process.c
-+++ b/src/lxc/lxc_process.c
-@@ -1274,6 +1274,20 @@ int virLXCProcessStart(virConnectPtr conn,
+Index: libvirt-1.2.12/src/lxc/lxc_process.c
+===================================================================
+--- libvirt-1.2.12.orig/src/lxc/lxc_process.c	2015-08-03 13:14:23.000000000 +0200
++++ libvirt-1.2.12/src/lxc/lxc_process.c	2015-08-03 13:15:14.000000000 +0200
+@@ -1274,6 +1274,20 @@
          goto cleanup;
      }
  
@@ -189,7 +189,7 @@ index e804b63..89e9249 100644
      priv->stopReason = VIR_DOMAIN_EVENT_STOPPED_FAILED;
      priv->wantReboot = false;
      vm->def->id = vm->pid;
-@@ -1294,20 +1308,6 @@ int virLXCProcessStart(virConnectPtr conn,
+@@ -1294,20 +1308,6 @@
          goto error;
      }
  
@@ -210,11 +210,10 @@ index e804b63..89e9249 100644
      if (autoDestroy &&
          virCloseCallbacksSet(driver->closeCallbacks, vm,
                               conn, lxcProcessAutoDestroy) < 0)
-diff --git a/src/util/cgmanager.c b/src/util/cgmanager.c
-deleted file mode 100644
-index 1cbd885..0000000
---- a/src/util/cgmanager.c
-+++ /dev/null
+Index: libvirt-1.2.12/src/util/cgmanager.c
+===================================================================
+--- libvirt-1.2.12.orig/src/util/cgmanager.c	2015-08-03 13:14:23.000000000 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
 @@ -1,345 +0,0 @@
 -/*
 - * lxc: linux Container library
@@ -561,11 +560,10 @@ index 1cbd885..0000000
 -    return true;
 -}
 -#endif
-diff --git a/src/util/cgmanager.h b/src/util/cgmanager.h
-deleted file mode 100644
-index d7a83b5..0000000
---- a/src/util/cgmanager.h
-+++ /dev/null
+Index: libvirt-1.2.12/src/util/cgmanager.h
+===================================================================
+--- libvirt-1.2.12.orig/src/util/cgmanager.h	2015-08-03 13:14:23.000000000 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
 @@ -1,51 +0,0 @@
 -/*
 - * lxc: linux Container library
@@ -618,10 +616,10 @@ index d7a83b5..0000000
 -bool cgm_enter(const char *controller, const char *cgroup_path, pid_t pid);
 -bool cgm_escape(const char *controller);
 -#endif
-diff --git a/src/util/vircgroup.c b/src/util/vircgroup.c
-index d4869c3..6957e81 100644
---- a/src/util/vircgroup.c
-+++ b/src/util/vircgroup.c
+Index: libvirt-1.2.12/src/util/vircgroup.c
+===================================================================
+--- libvirt-1.2.12.orig/src/util/vircgroup.c	2015-08-03 13:14:23.000000000 +0200
++++ libvirt-1.2.12/src/util/vircgroup.c	2015-08-03 13:15:14.000000000 +0200
 @@ -52,7 +52,6 @@
  #include "virstring.h"
  #include "virsystemd.h"
@@ -630,7 +628,7 @@ index d4869c3..6957e81 100644
  
  #include "nodeinfo.h"
  
-@@ -131,13 +130,6 @@ virCgroupAvailable(void)
+@@ -131,13 +130,6 @@
      struct mntent entry;
      char buf[CGROUP_MAX_VAL];
  
@@ -644,7 +642,7 @@ index d4869c3..6957e81 100644
      if (!virFileExists("/proc/cgroups"))
          return false;
  
-@@ -275,12 +267,6 @@ virCgroupValidateMachineGroup(virCgroupPtr group,
+@@ -275,12 +267,6 @@
      if (virCgroupPartitionEscape(&scopename) < 0)
          goto cleanup;
  
@@ -657,7 +655,7 @@ index d4869c3..6957e81 100644
      for (i = 0; i < VIR_CGROUP_CONTROLLER_LAST; i++) {
          char *tmp;
  
-@@ -318,7 +304,6 @@ virCgroupValidateMachineGroup(virCgroupPtr group,
+@@ -318,7 +304,6 @@
          }
      }
  
@@ -665,7 +663,7 @@ index d4869c3..6957e81 100644
      valid = true;
  
   cleanup:
-@@ -348,54 +333,6 @@ virCgroupCopyMounts(virCgroupPtr group,
+@@ -348,54 +333,6 @@
      return 0;
  }
  
@@ -720,7 +718,7 @@ index d4869c3..6957e81 100644
  
  /*
   * Process /proc/mounts figuring out what controllers are
-@@ -409,9 +346,6 @@ virCgroupDetectMounts(virCgroupPtr group)
+@@ -409,9 +346,6 @@
      struct mntent entry;
      char buf[CGROUP_MAX_VAL];
  
@@ -730,7 +728,7 @@ index d4869c3..6957e81 100644
      mounts = fopen("/proc/mounts", "r");
      if (mounts == NULL) {
          virReportSystemError(errno, "%s",
-@@ -539,55 +473,6 @@ virCgroupCopyPlacement(virCgroupPtr group,
+@@ -539,55 +473,6 @@
  }
  
  
@@ -786,7 +784,7 @@ index d4869c3..6957e81 100644
  /*
   * virCgroupDetectPlacement:
   * @group: the group to process
-@@ -610,7 +495,7 @@ cg_detect_placement(virCgroupPtr group,
+@@ -610,7 +495,7 @@
   *
   * It then appends @path to each detected path.
   */
@@ -795,7 +793,7 @@ index d4869c3..6957e81 100644
  virCgroupDetectPlacement(virCgroupPtr group,
                           pid_t pid,
                           const char *path)
-@@ -621,9 +506,6 @@ virCgroupDetectPlacement(virCgroupPtr group,
+@@ -621,9 +506,6 @@
      int ret = -1;
      char *procfile;
  
@@ -805,7 +803,7 @@ index d4869c3..6957e81 100644
      VIR_DEBUG("Detecting placement for pid %lld path %s",
                (unsigned long long)pid, path);
      if (pid == -1) {
-@@ -753,9 +635,6 @@ virCgroupDetect(virCgroupPtr group,
+@@ -753,9 +635,6 @@
                      if (!((1 << j) & controllers))
                          continue;
  
@@ -815,7 +813,7 @@ index d4869c3..6957e81 100644
                      if (STREQ_NULLABLE(group->controllers[i].mountPoint,
                                         group->controllers[j].mountPoint)) {
                          virReportSystemError(EINVAL,
-@@ -833,14 +712,6 @@ virCgroupSetValueStr(virCgroupPtr group,
+@@ -833,14 +712,6 @@
      char *keypath = NULL;
      char *tmp = NULL;
  
@@ -830,7 +828,7 @@ index d4869c3..6957e81 100644
      if (virCgroupPathOfController(group, controller, key, &keypath) < 0)
          return -1;
  
-@@ -877,26 +748,11 @@ virCgroupGetValueStr(virCgroupPtr group,
+@@ -877,26 +748,11 @@
  
      *value = NULL;
  
@@ -859,7 +857,7 @@ index d4869c3..6957e81 100644
      if ((rc = virFileReadAll(keypath, 1024*1024, value)) < 0) {
          virReportSystemError(errno,
                               _("Unable to read from '%s'"), keypath);
-@@ -927,12 +783,6 @@ virCgroupSetValueU64(virCgroupPtr group,
+@@ -927,12 +783,6 @@
      if (virAsprintf(&strval, "%llu", value) < 0)
          return -1;
  
@@ -872,7 +870,7 @@ index d4869c3..6957e81 100644
      ret = virCgroupSetValueStr(group, controller, key, strval);
  
      VIR_FREE(strval);
-@@ -953,12 +803,6 @@ virCgroupSetValueI64(virCgroupPtr group,
+@@ -953,12 +803,6 @@
      if (virAsprintf(&strval, "%lld", value) < 0)
          return -1;
  
@@ -885,7 +883,7 @@ index d4869c3..6957e81 100644
      ret = virCgroupSetValueStr(group, controller, key, strval);
  
      VIR_FREE(strval);
-@@ -976,16 +820,6 @@ virCgroupGetValueI64(virCgroupPtr group,
+@@ -976,16 +820,6 @@
      char *strval = NULL;
      int ret = -1;
  
@@ -902,7 +900,7 @@ index d4869c3..6957e81 100644
      if (virCgroupGetValueStr(group, controller, key, &strval) < 0)
          goto cleanup;
  
-@@ -999,11 +833,6 @@ virCgroupGetValueI64(virCgroupPtr group,
+@@ -999,11 +833,6 @@
      ret = 0;
  
   cleanup:
@@ -914,7 +912,7 @@ index d4869c3..6957e81 100644
      VIR_FREE(strval);
      return ret;
  }
-@@ -1045,12 +874,6 @@ virCgroupCpuSetInherit(virCgroupPtr parent, virCgroupPtr group)
+@@ -1045,12 +874,6 @@
          "cpuset.mems",
      };
  
@@ -927,7 +925,7 @@ index d4869c3..6957e81 100644
      VIR_DEBUG("Setting up inheritance %s -> %s", parent->path, group->path);
      for (i = 0; i < ARRAY_CARDINALITY(inherit_values); i++) {
          char *value;
-@@ -1083,11 +906,6 @@ virCgroupSetMemoryUseHierarchy(virCgroupPtr group)
+@@ -1083,11 +906,6 @@
      unsigned long long value;
      const char *filename = "memory.use_hierarchy";
  
@@ -939,7 +937,7 @@ index d4869c3..6957e81 100644
      if (virCgroupGetValueU64(group,
                               VIR_CGROUP_CONTROLLER_MEMORY,
                               filename, &value) < 0)
-@@ -1115,11 +933,6 @@ virCgroupMakeGroup(virCgroupPtr parent,
+@@ -1115,11 +933,6 @@
  {
      size_t i;
      int ret = -1;
@@ -951,7 +949,7 @@ index d4869c3..6957e81 100644
  
      VIR_DEBUG("Make group %s", group->path);
      for (i = 0; i < VIR_CGROUP_CONTROLLER_LAST; i++) {
-@@ -1138,15 +951,6 @@ virCgroupMakeGroup(virCgroupPtr parent,
+@@ -1138,15 +951,6 @@
              continue;
          }
  
@@ -967,7 +965,7 @@ index d4869c3..6957e81 100644
          if (virCgroupPathOfController(group, i, "", &path) < 0)
              return -1;
  
-@@ -1211,10 +1015,6 @@ virCgroupMakeGroup(virCgroupPtr parent,
+@@ -1211,10 +1015,6 @@
      ret = 0;
  
   cleanup:
@@ -978,7 +976,7 @@ index d4869c3..6957e81 100644
      return ret;
  }
  
-@@ -1296,19 +1096,6 @@ virCgroupAddTask(virCgroupPtr group, pid_t pid)
+@@ -1296,19 +1096,6 @@
          if (i == VIR_CGROUP_CONTROLLER_SYSTEMD)
              continue;
  
@@ -998,7 +996,7 @@ index d4869c3..6957e81 100644
          if (virCgroupSetValueU64(group, i, "tasks", pid) < 0)
              goto cleanup;
      }
-@@ -1344,20 +1131,6 @@ virCgroupAddTaskController(virCgroupPtr group, pid_t pid, int controller)
+@@ -1344,20 +1131,6 @@
          return -1;
      }
  
@@ -1019,7 +1017,7 @@ index d4869c3..6957e81 100644
      return virCgroupSetValueU64(group, controller, "tasks",
                                  (unsigned long long)pid);
  }
-@@ -1422,15 +1195,8 @@ virCgroupMoveTask(virCgroupPtr src_group, virCgroupPtr dest_group)
+@@ -1422,15 +1195,8 @@
      int ret = -1;
      char *content = NULL;
      size_t i;
@@ -1035,7 +1033,7 @@ index d4869c3..6957e81 100644
          if (!src_group->controllers[i].mountPoint ||
              !dest_group->controllers[i].mountPoint)
              continue;
-@@ -1444,35 +1210,6 @@ virCgroupMoveTask(virCgroupPtr src_group, virCgroupPtr dest_group)
+@@ -1444,35 +1210,6 @@
           * aware that it needs to move.  Therefore, we must iterate
           * until content is empty.  */
          while (1) {
@@ -1071,7 +1069,7 @@ index d4869c3..6957e81 100644
              VIR_FREE(content);
              if (virCgroupGetValueStr(src_group, i, "tasks", &content) < 0)
                  return -1;
-@@ -1488,10 +1225,6 @@ virCgroupMoveTask(virCgroupPtr src_group, virCgroupPtr dest_group)
+@@ -1488,10 +1225,6 @@
      ret = 0;
   cleanup:
      VIR_FREE(content);
@@ -1082,7 +1080,7 @@ index d4869c3..6957e81 100644
      return ret;
  }
  
-@@ -1933,7 +1666,7 @@ virCgroupNewMachineSystemd(const char *name,
+@@ -1933,7 +1666,7 @@
          }
      }
  
@@ -1091,7 +1089,7 @@ index d4869c3..6957e81 100644
          virErrorPtr saved = virSaveLastError();
          virCgroupRemove(*group);
          virCgroupFree(group);
-@@ -1991,7 +1724,7 @@ virCgroupNewMachineManual(const char *name,
+@@ -1991,7 +1724,7 @@
                                      group) < 0)
          goto cleanup;
  
@@ -1100,7 +1098,7 @@ index d4869c3..6957e81 100644
          virErrorPtr saved = virSaveLastError();
          virCgroupRemove(*group);
          virCgroupFree(group);
-@@ -3616,12 +3349,6 @@ virCgroupRemove(virCgroupPtr group)
+@@ -3616,12 +3349,6 @@
      int rc = 0;
      size_t i;
      char *grppath = NULL;
@@ -1113,7 +1111,7 @@ index d4869c3..6957e81 100644
  
      VIR_DEBUG("Removing cgroup %s", group->path);
      for (i = 0; i < VIR_CGROUP_CONTROLLER_LAST; i++) {
-@@ -3638,14 +3365,6 @@ virCgroupRemove(virCgroupPtr group)
+@@ -3638,14 +3365,6 @@
          if (STREQ(group->controllers[i].placement, "/"))
              continue;
  
@@ -1128,7 +1126,7 @@ index d4869c3..6957e81 100644
          if (virCgroupPathOfController(group,
                                        i,
                                        NULL,
-@@ -3658,10 +3377,6 @@ virCgroupRemove(virCgroupPtr group)
+@@ -3658,10 +3377,6 @@
      }
      VIR_DEBUG("Done removing cgroup %s", group->path);
  
@@ -1139,7 +1137,7 @@ index d4869c3..6957e81 100644
      return rc;
  }
  
-@@ -3766,181 +3481,6 @@ virCgroupPidCopy(const void *name)
+@@ -3766,181 +3481,6 @@
      return (void*)name;
  }
  
@@ -1321,7 +1319,7 @@ index d4869c3..6957e81 100644
  
  /*
   * Returns 1 if some PIDs are killed, 0 if none are killed, or -1 on error
-@@ -3950,7 +3490,6 @@ virCgroupKill(virCgroupPtr group, int signum)
+@@ -3950,7 +3490,6 @@
  {
      VIR_DEBUG("group=%p path=%s signum=%d", group, group->path, signum);
      int ret;
@@ -1329,7 +1327,7 @@ index d4869c3..6957e81 100644
      /* The 'tasks' file in cgroups can contain duplicated
       * pids, so we use a hash to track which we've already
       * killed.
-@@ -3962,12 +3501,6 @@ virCgroupKill(virCgroupPtr group, int signum)
+@@ -3962,12 +3501,6 @@
                                               virCgroupPidCopy,
                                               NULL);
  
@@ -1342,7 +1340,7 @@ index d4869c3..6957e81 100644
      ret = virCgroupKillInternal(group, signum, pids);
  
      virHashFree(pids);
-@@ -4058,7 +3591,6 @@ virCgroupKillRecursive(virCgroupPtr group, int signum)
+@@ -4058,7 +3591,6 @@
  {
      int ret;
      VIR_DEBUG("group=%p path=%s signum=%d", group, group->path, signum);
@@ -1350,7 +1348,7 @@ index d4869c3..6957e81 100644
      virHashTablePtr pids = virHashCreateFull(100,
                                               NULL,
                                               virCgroupPidCode,
-@@ -4066,14 +3598,6 @@ virCgroupKillRecursive(virCgroupPtr group, int signum)
+@@ -4066,14 +3598,6 @@
                                               virCgroupPidCopy,
                                               NULL);
  
@@ -1365,7 +1363,7 @@ index d4869c3..6957e81 100644
      ret = virCgroupKillRecursiveInternal(group, signum, pids, false);
  
      virHashFree(pids);
-@@ -4232,50 +3756,6 @@ virCgroupGetFreezerState(virCgroupPtr group, char **state)
+@@ -4232,50 +3756,6 @@
                                  "freezer.state", state);
  }
  
@@ -1416,7 +1414,7 @@ index d4869c3..6957e81 100644
  
  int
  virCgroupIsolateMount(virCgroupPtr group, const char *oldroot,
-@@ -4286,11 +3766,6 @@ virCgroupIsolateMount(virCgroupPtr group, const char *oldroot,
+@@ -4286,11 +3766,6 @@
      char *opts = NULL;
      char *root = NULL;
  
@@ -1428,7 +1426,7 @@ index d4869c3..6957e81 100644
      if (!(root = virCgroupIdentifyRoot(group)))
          return -1;
  
-@@ -4380,11 +3855,6 @@ int virCgroupSetOwner(virCgroupPtr cgroup,
+@@ -4380,11 +3855,6 @@
      size_t i;
      char *base = NULL, *entry = NULL;
      DIR *dh = NULL;
@@ -1440,7 +1438,7 @@ index d4869c3..6957e81 100644
      int direrr;
  
      for (i = 0; i < VIR_CGROUP_CONTROLLER_LAST; i++) {
-@@ -4396,19 +3866,6 @@ int virCgroupSetOwner(virCgroupPtr cgroup,
+@@ -4396,19 +3866,6 @@
          if (!cgroup->controllers[i].mountPoint)
              continue;
  
@@ -1460,7 +1458,7 @@ index d4869c3..6957e81 100644
          if (virAsprintf(&base, "%s%s", cgroup->controllers[i].mountPoint,
                          cgroup->controllers[i].placement) < 0)
              goto cleanup;
-@@ -4458,10 +3915,6 @@ int virCgroupSetOwner(virCgroupPtr cgroup,
+@@ -4458,10 +3915,6 @@
          closedir(dh);
      VIR_FREE(entry);
      VIR_FREE(base);
@@ -1471,7 +1469,7 @@ index d4869c3..6957e81 100644
      return ret;
  }
  
-@@ -4482,19 +3935,6 @@ virCgroupSupportsCpuBW(virCgroupPtr cgroup)
+@@ -4482,19 +3935,6 @@
      if (!cgroup)
          return false;
  
@@ -1491,7 +1489,7 @@ index d4869c3..6957e81 100644
      if (virCgroupPathOfController(cgroup, VIR_CGROUP_CONTROLLER_CPU,
                                    "cpu.cfs_period_us", &path) < 0) {
          virResetLastError();
-@@ -4526,16 +3966,6 @@ virCgroupHasEmptyTasks(virCgroupPtr cgroup, int controller)
+@@ -4526,16 +3966,6 @@
      return ret;
  }
  
@@ -1508,18 +1506,18 @@ index d4869c3..6957e81 100644
  #else /* !VIR_CGROUP_SUPPORTED */
  
  bool
-@@ -5275,6 +4705,4 @@ virCgroupHasEmptyTasks(virCgroupPtr cgroup ATTRIBUTE_UNUSED,
+@@ -5275,6 +4705,4 @@
      return -1;
  }
  
 -void virCgroupEscape(void) {
 -}
  #endif /* !VIR_CGROUP_SUPPORTED */
-diff --git a/src/util/vircgroup.h b/src/util/vircgroup.h
-index 1148d86..9f984e7 100644
---- a/src/util/vircgroup.h
-+++ b/src/util/vircgroup.h
-@@ -274,9 +274,4 @@ int virCgroupSetOwner(virCgroupPtr cgroup,
+Index: libvirt-1.2.12/src/util/vircgroup.h
+===================================================================
+--- libvirt-1.2.12.orig/src/util/vircgroup.h	2015-08-03 13:14:23.000000000 +0200
++++ libvirt-1.2.12/src/util/vircgroup.h	2015-08-03 13:15:14.000000000 +0200
+@@ -274,9 +274,4 @@
  
  int virCgroupHasEmptyTasks(virCgroupPtr cgroup, int controller);
  
@@ -1529,11 +1527,11 @@ index 1148d86..9f984e7 100644
 -                             const char *path);
 -
  #endif /* __VIR_CGROUP_H__ */
-diff --git a/src/util/virsystemd.c b/src/util/virsystemd.c
-index 208967a..3ac399a 100644
---- a/src/util/virsystemd.c
-+++ b/src/util/virsystemd.c
-@@ -277,10 +277,8 @@ int virSystemdCreateMachine(const char *name,
+Index: libvirt-1.2.12/src/util/virsystemd.c
+===================================================================
+--- libvirt-1.2.12.orig/src/util/virsystemd.c	2015-08-03 13:14:23.000000000 +0200
++++ libvirt-1.2.12/src/util/virsystemd.c	2015-08-03 13:15:14.000000000 +0200
+@@ -277,10 +277,8 @@
                                3,
                                "Slice", "s", slicename,
                                "After", "as", 1, "libvirtd.service",
@@ -1545,11 +1543,11 @@ index 208967a..3ac399a 100644
  
          if (error.level == VIR_ERR_ERROR) {
              if (virDBusErrorIsUnknownMethod(&error)) {
-diff --git a/tests/Makefile.am b/tests/Makefile.am
-index 0004377..1d838a5 100644
---- a/tests/Makefile.am
-+++ b/tests/Makefile.am
-@@ -979,9 +979,8 @@ libvirportallocatormock_la_LDFLAGS = -module -avoid-version \
+Index: libvirt-1.2.12/tests/Makefile.am
+===================================================================
+--- libvirt-1.2.12.orig/tests/Makefile.am	2015-08-03 13:14:23.000000000 +0200
++++ libvirt-1.2.12/tests/Makefile.am	2015-08-03 13:15:14.000000000 +0200
+@@ -979,9 +979,8 @@
          -rpath /evil/libtool/hack/to/force/shared/lib/creation
  
  vircgrouptest_SOURCES = \
@@ -1561,19 +1559,10 @@ index 0004377..1d838a5 100644
  
  vircgroupmock_la_SOURCES = \
  	vircgroupmock.c
-diff --git a/tests/vircgrouptest.c b/tests/vircgrouptest.c
-index b167b9b..cc1825b 100644
---- a/tests/vircgrouptest.c
-+++ b/tests/vircgrouptest.c
-@@ -22,7 +22,7 @@
- 
- #include "testutils.h"
- 
--#ifdef HAVE_SYSFS_MOCK
-+#ifdef __linux__
- 
- # include <stdlib.h>
- 
+Index: libvirt-1.2.12/tests/vircgrouptest.c
+===================================================================
+--- libvirt-1.2.12.orig/tests/vircgrouptest.c	2015-08-03 13:14:23.000000000 +0200
++++ libvirt-1.2.12/tests/vircgrouptest.c	2015-08-03 13:55:38.896136394 +0200
 @@ -34,7 +34,6 @@
  # include "virfile.h"
  # include "testutilslxc.h"
@@ -1582,7 +1571,7 @@ index b167b9b..cc1825b 100644
  
  # define VIR_FROM_THIS VIR_FROM_NONE
  
-@@ -782,14 +781,6 @@ mymain(void)
+@@ -782,14 +781,6 @@
      int ret = 0;
      char *fakesysfsdir;
  
@@ -1597,11 +1586,11 @@ index b167b9b..cc1825b 100644
      if (VIR_STRDUP_QUIET(fakesysfsdir, FAKESYSFSDIRTEMPLATE) < 0) {
          fprintf(stderr, "Out of memory\n");
          abort();
-diff --git a/tests/virsystemdtest.c b/tests/virsystemdtest.c
-index 754c340..261c4cc 100644
---- a/tests/virsystemdtest.c
-+++ b/tests/virsystemdtest.c
-@@ -454,7 +454,6 @@ mymain(void)
+Index: libvirt-1.2.12/tests/virsystemdtest.c
+===================================================================
+--- libvirt-1.2.12.orig/tests/virsystemdtest.c	2015-08-03 13:14:23.000000000 +0200
++++ libvirt-1.2.12/tests/virsystemdtest.c	2015-08-03 13:15:14.000000000 +0200
+@@ -454,7 +454,6 @@
  {
      int ret = 0;
  
