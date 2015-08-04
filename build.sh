@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 PBUILDER_CONF="config/pbuilderrc"
-PKGS_DIR="."
+PKGS_DIR="deb-srcs"
 PATCHES_DIR="patches"
 OUT_DIR="debs"
 BUILD_DIR="build"
