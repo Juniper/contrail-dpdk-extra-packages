@@ -25,10 +25,17 @@ usage() {
 get_src_dir() {
     name="$1"
 
-    src_dir=$(ls "${PKGS_DIR}/${name}_"*.orig*z)
+    # First try using the *.orig.* file
+    src_dir=$(ls "${PKGS_DIR}/${name}_"*.orig*z 2>/dev/null)
     src_dir=${src_dir%%.orig*}
-    src_dir=${src_dir/_/-}
 
+    # It is a native package (no *.orig.* file)
+    if [ -z "$src_dir" ]; then
+        src_dir=$(ls "${PKGS_DIR}/${name}_"*.dsc 2>/dev/null)
+        src_dir=${src_dir%%.dsc}
+    fi
+
+    src_dir=${src_dir/_/-}
     echo "$src_dir"
 }
 
@@ -78,7 +85,7 @@ fi
 # Get pkgs to build
 pkgs=$@
 if [ -z "$pkgs" ]; then
-    for dsc in $(ls "$PKGS_DIR"/*.dsc); do
+    for dsc in $(ls "$PKGS_DIR"/*.dsc 2>/dev/null); do
         dsc=${dsc##*/}
         pkgs+="${dsc%%_*} "
     done
@@ -86,7 +93,7 @@ fi
 
 # Extract sources
 for name in $pkgs; do
-    dsc=$(ls "${PKGS_DIR}/${name}_"*.dsc)
+    dsc=$(ls "${PKGS_DIR}/${name}_"*.dsc 2>/dev/null)
     src_dir=$(get_src_dir $name)
     run rm -rf $src_dir
     run dpkg-source -x $dsc
@@ -97,7 +104,7 @@ for name in $pkgs; do
     src_dir=$(get_src_dir $name)
 
     # Apply the DEBIAN-* pathes
-    patches=$(ls "${PATCHES_DIR}/${DIST}/${name}/DEBIAN-"*.patch)
+    patches=$(ls "${PATCHES_DIR}/${DIST}/${name}/DEBIAN-"*.patch 2>/dev/null)
     for patch in $patches; do
         patch=$(readlink -e $patch)
         run_in_dir $src_dir patch -N -p1 < $patch
@@ -105,7 +112,7 @@ for name in $pkgs; do
     done
 
     # Apply the CODE-* patches
-    patches=$(ls "${PATCHES_DIR}/${DIST}/${name}/CODE-"*.patch)
+    patches=$(ls "${PATCHES_DIR}/${DIST}/${name}/CODE-"*.patch 2>/dev/null)
     for patch in $patches; do
         patch=$(readlink -e $patch)
         run_in_dir $src_dir quilt import $patch && quilt push
