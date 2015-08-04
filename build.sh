@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 
-PBUILDER_CONF="./config/pbuilderrc"
+PBUILDER_CONF="config/pbuilderrc"
 PKGS_DIR="."
 PATCHES_DIR="patches"
 OUT_DIR="debs"
+BUILD_DIR="build"
 
-export SCRIPT_DIR=$(readlink -f $(dirname $0i))
+# Make all paths absolute
+export SCRIPT_DIR=$(readlink -f $(dirname $0))
+PBUILDER_CONF=$SCRIPT_DIR/$PBUILDER_CONF
+PKGS_DIR=$SCRIPT_DIR/$PKGS_DIR
+PATCHES_DIR=$SCRIPT_DIR/$PATCHES_DIR
+BUILD_DIR=$SCRIPT_DIR/$BUILD_DIR
 
 usage() {
     if [ -n "$1" ]; then
@@ -35,6 +41,7 @@ get_src_dir() {
         src_dir=${src_dir%%.dsc}
     fi
 
+    src_dir=${src_dir##*/}
     src_dir=${src_dir/_/-}
     echo "$src_dir"
 }
@@ -91,6 +98,10 @@ if [ -z "$pkgs" ]; then
     done
 fi
 
+# Enter the build directory
+run mkdir -p $BUILD_DIR
+run cd $BUILD_DIR
+
 # Extract sources
 for name in $pkgs; do
     dsc=$(ls "${PKGS_DIR}/${name}_"*.dsc 2>/dev/null)
@@ -132,7 +143,5 @@ for name in $pkgs; do
 done
 
 # Clean up
-for name in $pkgs; do
-    src_dir=$(get_src_dir $name)
-    run rm -f "${name}_"*.deb
-done
+run cd ../ # Get out of the $BUILD_DIR directory
+run rm -rf $BUILD_DIR
