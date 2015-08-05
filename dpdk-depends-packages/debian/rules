@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+# export DH_VERBOSE=1
+
+INPUT_DEBS_DIR := ${DEBS_DIR}/${DIST_PLATFORM_NAME}/
+TMP_DIR := ${BUILD_DIR}/dpdk-depends-packages/
+REPO_DIR := ${TMP_DIR}/opt/contrail/contrail_install_repo_dpdk
+PKG_LIST := ${SCRIPT_DIR}/config/dpdk-depends-packages-list
+
+%:
+	dh $@ --tmpdir=${TMP_DIR} # --destdir=${DEBS_DIR}
+
+override_dh_auto_install:
+	rm -rf ${TMP_DIR}
+	install -d -m 755 ${REPO_DIR}
+	${SCRIPT_DIR}/copy-packages.sh ${PKG_LIST} ${INPUT_DEBS_DIR} ${REPO_DIR}

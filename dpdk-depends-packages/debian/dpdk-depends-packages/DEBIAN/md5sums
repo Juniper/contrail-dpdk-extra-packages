@@ -1,0 +1,4 @@
+fd96fb79a06552f40acb89cdbd98647b  opt/contrail/contrail_packages_dpdk/remove.sh
+e53c0772c546d7029a278e039ed74116  opt/contrail/contrail_packages_dpdk/setup.sh
+056dac8684a106b3a91299377ea6f382  usr/share/doc/dpdk-depends-packages/changelog.Debian.gz
+aebc9fca345622cae0c2262cf2e9058c  usr/share/doc/dpdk-depends-packages/copyright

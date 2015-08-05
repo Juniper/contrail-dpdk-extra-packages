@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+PBUILDER_CONF="config/pbuilderrc"
+PKGS_DIR="deb-srcs"
+PATCHES_DIR="patches"
+DEBS_DIR="debs"
+BUILD_DIR="build"
+
+# Make all paths absolute
+export SCRIPT_DIR=$(readlink -f $(dirname $0))
+export PBUILDER_CONF=$SCRIPT_DIR/$PBUILDER_CONF
+export PKGS_DIR=$SCRIPT_DIR/$PKGS_DIR
+export PATCHES_DIR=$SCRIPT_DIR/$PATCHES_DIR
+export DEBS_DIR=$SCRIPT_DIR/$DEBS_DIR
+export BUILD_DIR=$SCRIPT_DIR/$BUILD_DIR
