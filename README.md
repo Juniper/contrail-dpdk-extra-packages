@@ -57,7 +57,7 @@ The packaging scripts for third party packages have been based on:
 
 1. Build all debs
 
-        ./build-debs.sh precise
+        sudo ./build-debs.sh precise
 
 1. Combine built debs into dpdk-depends-package
 

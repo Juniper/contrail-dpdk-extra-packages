@@ -1,3 +1,10 @@
+dpdk-depends-packages (12.04-contrail2) trusty; urgency=low
+
+  * Updated contrail-dpdk-kernel-modules-dkms to DPDK 2.1.
+
+ -- Andriy Berestovskyy <aber@semihalf.com>  Wed, 14 Oct 2015 17:17:17 +0100
+
+
 dpdk-depends-packages (12.04-contrail1) precise; urgency=low
 
   * New versioning policy: 14.04-contrailN for Ubuntu Trusty, 12.04-contrailN

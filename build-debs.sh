@@ -10,8 +10,17 @@ usage() {
         echo "Build deb packages in clean chroot"
         echo "Usage:"
         echo "    ${0##*/} <dist> [<pkg>]..."
-        echo "    <dist> - distro codename (trusty, precise)"
-        echo "    <pkg>  - pkg to build, all if empty"
+        echo "        <dist> - one of the following distro codenames:"
+        for dstr in $(ls "$PATCHES_DIR" 2>/dev/null); do
+            printf "%16s %s\n" "" "${dstr}"
+        done
+        echo "        <pkg>  - list of packages to build (all by default):"
+        for dsc in $(ls "$PKGS_DIR"/*.dsc 2>/dev/null); do
+            dsc=${dsc##*/}
+            printf "%16s %s\n" "" "${dsc%%_*}"
+        done
+        echo "    ${0##*/} clean"
+        echo "        clean build directory"
         echo "Example:"
         echo "    ${0##*/} trusty libvirt"
     fi
@@ -58,7 +67,7 @@ run_in_dir() {
 }
 
 # Verify cmd arguments
-if [ -z "$1" ]; then
+if [ -z "$1" -o "$1" = "--help" -o "$1" = "-h" ]; then
     usage
 fi
 
