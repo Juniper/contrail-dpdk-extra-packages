@@ -12,7 +12,8 @@
 INPUT_DEBS_DIR := ${DEBS_DIR}/${DIST_PLATFORM_NAME}/
 TMP_DIR := ${BUILD_DIR}/dpdk-depends-packages/
 REPO_DIR := ${TMP_DIR}/opt/contrail/contrail_install_repo_dpdk
-PKG_LIST := ${SCRIPT_DIR}/config/dpdk-depends-packages-list
+PKG_LIST := ${CONFIG_DIR}/dpdk-depends-packages-list
+PKG_LIST_THIRD_PARTY := ${CONFIG_DIR}/third-party-packages-list
 
 %:
 	dh $@ --tmpdir=${TMP_DIR} # --destdir=${DEBS_DIR}
@@ -20,4 +21,6 @@ PKG_LIST := ${SCRIPT_DIR}/config/dpdk-depends-packages-list
 override_dh_auto_install:
 	rm -rf ${TMP_DIR}
 	install -d -m 755 ${REPO_DIR}
-	${SCRIPT_DIR}/copy-packages.sh ${PKG_LIST} ${INPUT_DEBS_DIR} ${REPO_DIR}
+	${TOOLS_DIR}/copy-packages.sh ${PKG_LIST} ${INPUT_DEBS_DIR} ${REPO_DIR}
+	${TOOLS_DIR}/copy-third-party-packages.sh ${PKG_LIST_THIRD_PARTY} \
+		${THIRD_PARTY_DIR} ${REPO_DIR}

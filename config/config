@@ -4,7 +4,10 @@ PBUILDER_CONF="config/pbuilderrc"
 PKGS_DIR="deb-srcs"
 PATCHES_DIR="patches"
 DEBS_DIR="debs"
+THIRD_PARTY_DIR="third-party-debs"
 BUILD_DIR="build"
+TOOLS_DIR="tools"
+CONFIG_DIR="config"
 
 # Make all paths absolute
 export SCRIPT_DIR=$(readlink -f $(dirname $0))
@@ -13,3 +16,6 @@ export PKGS_DIR=$SCRIPT_DIR/$PKGS_DIR
 export PATCHES_DIR=$SCRIPT_DIR/$PATCHES_DIR
 export DEBS_DIR=$SCRIPT_DIR/$DEBS_DIR
 export BUILD_DIR=$SCRIPT_DIR/$BUILD_DIR
+export THIRD_PARTY_DIR=$SCRIPT_DIR/$THIRD_PARTY_DIR
+export TOOLS_DIR=$SCRIPT_DIR/$TOOLS_DIR
+export CONFIG_DIR=$SCRIPT_DIR/$CONFIG_DIR
