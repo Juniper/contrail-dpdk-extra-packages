@@ -1,3 +1,9 @@
+dpdk-depends-packages (14.04-contrail5) trusty; urgency=low
+
+  * Updated Qemu to detect chardev disconnection.
+
+ -- Andriy Berestovskyy <aber@semihalf.com>  Fri, 29 Jan 2016 12:12:12 +0100
+
 dpdk-depends-packages (14.04-contrail4) trusty; urgency=low
 
   * Updated libvirt's apparmor filters in order to support DPDK vRouter in
