@@ -1,3 +1,10 @@
+dpdk-depends-packages (14.04-contrail4) trusty; urgency=low
+
+  * Updated libvirt's apparmor filters in order to support DPDK vRouter in
+    Openstack Kilo version.
+
+ -- Michal Dubiel <md@semihalf.com>  Wed, 23 Dec 2015 12:34:22 +0100
+
 dpdk-depends-packages (14.04-contrail3) trusty; urgency=low
 
   * Added seabios seabios_1.7.5-1ubuntu1~cloud0_all.deb package.
