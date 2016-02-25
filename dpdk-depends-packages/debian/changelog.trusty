@@ -1,4 +1,4 @@
-dpdk-depends-packages (14.04-contrail5) trusty; urgency=low
+dpdk-depends-packages (14.04-contrail6) trusty; urgency=low
 
   * Updated Qemu to detect chardev disconnection.
 
