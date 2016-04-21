@@ -5,6 +5,9 @@ MIRRORSITE="http://us.archive.ubuntu.com/ubuntu/"
 # that you can set your own default (i.e. ${ARCH:="i386"}).
 : ${ARCH:="$(dpkg --print-architecture)"}
 
+# Set OpenStack relase name
+OPEN_STACK="liberty"
+
 # Create a chroot for buildd
 DEBOOTSTRAPOPTS=("--variant=buildd" "${DEBOOTSTRAPOPTS[@]}")
 
@@ -13,11 +16,11 @@ COMPONENTS="main restricted universe multiverse"
 
 # Enable security and updates repos
 if [ "$DIST" == "precise" ]; then
-    OTHERMIRROR="deb $MIRRORSITE $DIST-updates $COMPONENTS|deb $MIRRORSITE $DIST-security $COMPONENTS|deb http://ppa.launchpad.net/ubuntu-cloud-archive/icehouse-staging/ubuntu precise main"
+    OTHERMIRROR="deb $MIRRORSITE $DIST-updates $COMPONENTS|deb $MIRRORSITE $DIST-security $COMPONENTS|deb [trusted=yes] http://ppa.launchpad.net/ubuntu-cloud-archive/$OPEN_STACK-staging/ubuntu $DIST main"
 else
     OTHERMIRROR="deb $MIRRORSITE $DIST-security $COMPONENTS"
-    ALLOWUNTRUSTED=yes
 fi
+ALLOWUNTRUSTED=yes
 
 DEBBUILDOPTS="-uc -j5 -b"
 
@@ -26,7 +29,7 @@ if [ -n "${ARCH}" ]; then
     DIST_PLATFORM_NAME="$DIST_PLATFORM_NAME-$ARCH"
     DEBOOTSTRAPOPTS=("--arch" "$ARCH" "${DEBOOTSTRAPOPTS[@]}")
 fi
-BASETGZ="/var/cache/pbuilder/$DIST_PLATFORM_NAME-base.tgz"
+BASETGZ="/var/cache/pbuilder/$DIST_PLATFORM_NAME-$OPEN_STACK-base.tgz"
 # Optionally, set BASEPATH (and not BASETGZ) if using cowbuilder
 # BASEPATH="/var/cache/pbuilder/$DIST_PLATFORM_NAME/base.cow/"
 DISTRIBUTION="$DIST"

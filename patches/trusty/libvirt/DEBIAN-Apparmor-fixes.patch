@@ -1,0 +1,23 @@
+--- a/debian/apparmor/libvirt-qemu	2016-02-23 21:41:05.000000000 +0100
++++ b/debian/apparmor/libvirt-qemu	2016-04-08 05:49:44.782184180 +0200
+@@ -57,6 +57,9 @@
+   # unless you absolutely need it.
+   deny capability kill,
+ 
++  # For lttng access.
++  /{dev,run}/shm/lttng-ust-wait-5 r,
++
+   # Uncomment the following if you need access to /dev/fb*
+   #/dev/fb* rw,
+ 
+@@ -152,6 +155,10 @@
+   # for access to hugepages
+   owner "/run/hugepages/kvm/libvirt/qemu/**" rw,
+   owner "/dev/hugepages/libvirt/qemu/**" rw,
++  owner "/hugepages/libvirt/qemu/**" rw,
++
++  # for cpu and numa config
++  /sys/devices/system/** r,
+ 
+   # for usb access
+   /dev/bus/usb/ r,
