@@ -127,7 +127,8 @@ for name in $pkgs; do
     patches=$(ls "${PATCHES_DIR}/${DIST}/${name}/CODE-"*.patch 2>/dev/null)
     for patch in $patches; do
         patch=$(readlink -e $patch)
-        run_in_dir $src_dir quilt import $patch && quilt push
+        run_in_dir $src_dir quilt import $patch
+        run_in_dir $src_dir quilt push
         #(cd $src_dir; quilt import $patch && quilt push)
     done
 done
