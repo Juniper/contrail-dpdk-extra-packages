@@ -1,0 +1,492 @@
+diff --git a/src/libvirt_private.syms b/src/libvirt_private.syms
+index 76f0f85..771b5ee 100644
+--- a/src/libvirt_private.syms
++++ b/src/libvirt_private.syms
+@@ -1741,6 +1741,7 @@ virNetDevIsVirtualFunction;
+ virNetDevLinkDump;
+ virNetDevReplaceNetConfig;
+ virNetDevRestoreNetConfig;
++virNetDevRunEthernetScript;
+ virNetDevRxFilterFree;
+ virNetDevRxFilterModeTypeFromString;
+ virNetDevRxFilterModeTypeToString;
+diff --git a/src/qemu/qemu_command.c b/src/qemu/qemu_command.c
+index 11c6823..d996677 100644
+--- a/src/qemu/qemu_command.c
++++ b/src/qemu/qemu_command.c
+@@ -26,6 +26,7 @@
+ #include "qemu_command.h"
+ #include "qemu_hostdev.h"
+ #include "qemu_capabilities.h"
++#include "qemu_interface.h"
+ #include "cpu/cpu.h"
+ #include "dirname.h"
+ #include "passfd.h"
+@@ -5214,6 +5215,7 @@ qemuBuildHostNetStr(virDomainNetDefPtr net,
+     case VIR_DOMAIN_NET_TYPE_BRIDGE:
+     case VIR_DOMAIN_NET_TYPE_NETWORK:
+     case VIR_DOMAIN_NET_TYPE_DIRECT:
++    case VIR_DOMAIN_NET_TYPE_ETHERNET:
+         virBufferAsprintf(&buf, "tap%c", type_sep);
+         /* for one tapfd 'fd=' shall be used,
+          * for more than one 'fds=' is the right choice */
+@@ -5231,20 +5233,6 @@ qemuBuildHostNetStr(virDomainNetDefPtr net,
+         is_tap = true;
+         break;
+ 
+-    case VIR_DOMAIN_NET_TYPE_ETHERNET:
+-        virBufferAddLit(&buf, "tap");
+-        if (net->ifname) {
+-            virBufferAsprintf(&buf, "%cifname=%s", type_sep, net->ifname);
+-            type_sep = ',';
+-        }
+-        if (net->script) {
+-            virBufferAsprintf(&buf, "%cscript=%s", type_sep,
+-                              net->script);
+-            type_sep = ',';
+-        }
+-        is_tap = true;
+-        break;
+-
+     case VIR_DOMAIN_NET_TYPE_CLIENT:
+        virBufferAsprintf(&buf, "socket%cconnect=%s:%d",
+                          type_sep,
+@@ -8194,7 +8182,8 @@ qemuBuildInterfaceCommandLine(virCommandPtr cmd,
+     /* Currently nothing besides TAP devices supports multiqueue. */
+     if (net->driver.virtio.queues > 0 &&
+         !(actualType == VIR_DOMAIN_NET_TYPE_NETWORK ||
+-          actualType == VIR_DOMAIN_NET_TYPE_BRIDGE)) {
++          actualType == VIR_DOMAIN_NET_TYPE_BRIDGE ||
++          actualType == VIR_DOMAIN_NET_TYPE_ETHERNET)) {
+         virReportError(VIR_ERR_CONFIG_UNSUPPORTED,
+                        _("Multiqueue network is not supported for: %s"),
+                        virDomainNetTypeToString(actualType));
+@@ -8203,7 +8192,8 @@ qemuBuildInterfaceCommandLine(virCommandPtr cmd,
+ 
+     if (net->backend.tap &&
+         !(actualType == VIR_DOMAIN_NET_TYPE_NETWORK ||
+-          actualType == VIR_DOMAIN_NET_TYPE_BRIDGE)) {
++          actualType == VIR_DOMAIN_NET_TYPE_BRIDGE ||
++          actualType == VIR_DOMAIN_NET_TYPE_ETHERNET)) {
+         virReportError(VIR_ERR_CONFIG_UNSUPPORTED,
+                        _("Custom tap device path is not supported for: %s"),
+                        virDomainNetTypeToString(actualType));
+@@ -8236,6 +8226,20 @@ qemuBuildInterfaceCommandLine(virCommandPtr cmd,
+                                         qemuCaps, vmop);
+         if (tapfd[0] < 0)
+             goto cleanup;
++    } else if (actualType == VIR_DOMAIN_NET_TYPE_ETHERNET) {
++        tapfdSize = net->driver.virtio.queues;
++        if (!tapfdSize)
++            tapfdSize = 1;
++
++        if (VIR_ALLOC_N(tapfd, tapfdSize) < 0 ||
++            VIR_ALLOC_N(tapfdName, tapfdSize) < 0)
++            goto cleanup;
++
++        memset(tapfd, -1, tapfdSize * sizeof(tapfd[0]));
++
++        if (qemuInterfaceEthernetConnect(def, driver, net,
++                                         tapfd, tapfdSize) < 0)
++            goto cleanup;
+     }
+ 
+     /* For types whose implementations use a netdev on the host, add
+diff --git a/src/qemu/qemu_hotplug.c b/src/qemu/qemu_hotplug.c
+index 170768b..77ecae9 100644
+--- a/src/qemu/qemu_hotplug.c
++++ b/src/qemu/qemu_hotplug.c
+@@ -908,7 +908,8 @@ int qemuDomainAttachNetDevice(virConnectPtr conn,
+     /* Currently nothing besides TAP devices supports multiqueue. */
+     if (net->driver.virtio.queues > 0 &&
+         !(actualType == VIR_DOMAIN_NET_TYPE_NETWORK ||
+-          actualType == VIR_DOMAIN_NET_TYPE_BRIDGE)) {
++          actualType == VIR_DOMAIN_NET_TYPE_BRIDGE ||
++          actualType == VIR_DOMAIN_NET_TYPE_ETHERNET)) {
+         virReportError(VIR_ERR_CONFIG_UNSUPPORTED,
+                        _("Multiqueue network is not supported for: %s"),
+                        virDomainNetTypeToString(actualType));
+@@ -948,10 +949,19 @@ int qemuDomainAttachNetDevice(virConnectPtr conn,
+         if (qemuOpenVhostNet(vm->def, net, priv->qemuCaps, vhostfd, &vhostfdSize) < 0)
+             goto cleanup;
+     } else if (actualType == VIR_DOMAIN_NET_TYPE_ETHERNET) {
+-        vhostfdSize = 1;
+-        if (VIR_ALLOC(vhostfd) < 0)
++        tapfdSize = vhostfdSize = net->driver.virtio.queues;
++        if (!tapfdSize)
++            tapfdSize = vhostfdSize = 1;
++        if (VIR_ALLOC_N(tapfd, tapfdSize) < 0)
+             goto cleanup;
+-        *vhostfd = -1;
++        memset(tapfd, -1, sizeof(*tapfd) * tapfdSize);
++        if (VIR_ALLOC_N(vhostfd, vhostfdSize) < 0)
++            goto cleanup;
++        memset(vhostfd, -1, sizeof(*vhostfd) * vhostfdSize);
++        if (qemuInterfaceEthernetConnect(vm->def, driver, net,
++                                       tapfd, tapfdSize) < 0)
++            goto cleanup;
++        iface_connected = true;
+         if (qemuOpenVhostNet(vm->def, net, priv->qemuCaps, vhostfd, &vhostfdSize) < 0)
+             goto cleanup;
+     }
+@@ -2179,6 +2189,21 @@ int qemuDomainChangeNetLinkState(virQEMUDriverPtr driver,
+     if (ret < 0)
+         goto cleanup;
+ 
++    if (virDomainNetGetActualType(dev) == VIR_DOMAIN_NET_TYPE_ETHERNET) {
++        switch (linkstate) {
++            case VIR_DOMAIN_NET_INTERFACE_LINK_STATE_UP:
++            case VIR_DOMAIN_NET_INTERFACE_LINK_STATE_DEFAULT:
++                if ((ret = virNetDevSetOnline(dev->ifname, true)) < 0)
++                    goto cleanup;
++                break;
++
++            case VIR_DOMAIN_NET_INTERFACE_LINK_STATE_DOWN:
++                if ((ret = virNetDevSetOnline(dev->ifname, false)) < 0)
++                    goto cleanup;
++                break;
++            }
++    }
++
+     /* modify the device configuration */
+     dev->linkstate = linkstate;
+ 
+diff --git a/src/qemu/qemu_interface.c b/src/qemu/qemu_interface.c
+index 01226ac..0e77ecc 100644
+--- a/src/qemu/qemu_interface.c
++++ b/src/qemu/qemu_interface.c
+@@ -25,11 +25,17 @@
+ 
+ #include "network_conf.h"
+ #include "qemu_interface.h"
++#include "viralloc.h"
++#include "virstring.h"
+ #include "virnetdev.h"
+ #include "virnetdevtap.h"
+ #include "virnetdevmacvlan.h"
+ #include "virnetdevbridge.h"
+ #include "virnetdevvportprofile.h"
++#include "domain_audit.h"
++#include "domain_nwfilter.h"
++
++#define VIR_FROM_THIS VIR_FROM_QEMU
+ 
+ /**
+  * qemuInterfaceStartDevice:
+@@ -217,3 +223,86 @@ qemuInterfaceStopDevices(virDomainDefPtr def)
+     }
+     return 0;
+ }
++
++/* qemuInterfaceEthernetConnect:
++ * @def: the definition of the VM
++ * @driver: qemu driver data
++ * @net: pointer to the VM's interface description
++ * @tapfd: array of file descriptor return value for the new device
++ * @tapfdsize: number of file descriptors in @tapfd
++ *
++ * Called *only* called if actualType is VIR_DOMAIN_NET_TYPE_ETHERNET
++ * (i.e. if the connection is made with a tap device)
++ */
++int
++qemuInterfaceEthernetConnect(virDomainDefPtr def,
++                           virQEMUDriverPtr driver,
++                           virDomainNetDefPtr net,
++                           int *tapfd,
++                           size_t tapfdSize)
++{
++    virMacAddr tapmac;
++    int ret = -1;
++    unsigned int tap_create_flags = VIR_NETDEV_TAP_CREATE_IFUP;
++    bool template_ifname = false;
++    virQEMUDriverConfigPtr cfg = virQEMUDriverGetConfig(driver);
++    const char *tunpath = "/dev/net/tun";
++
++    if (net->backend.tap)
++        tunpath = net->backend.tap;
++
++    if (!net->ifname ||
++        STRPREFIX(net->ifname, VIR_NET_GENERATED_PREFIX) ||
++        strchr(net->ifname, '%')) {
++        VIR_FREE(net->ifname);
++        if (VIR_STRDUP(net->ifname, VIR_NET_GENERATED_PREFIX "%d") < 0)
++            goto cleanup;
++        /* avoid exposing vnet%d in getXMLDesc or error outputs */
++        template_ifname = true;
++    }
++
++    if (net->model && STREQ(net->model, "virtio"))
++        tap_create_flags |= VIR_NETDEV_TAP_CREATE_VNET_HDR;
++
++    if (virNetDevTapCreate(&net->ifname, tunpath, tapfd, tapfdSize,
++                           tap_create_flags) < 0) {
++        virDomainAuditNetDevice(def, net, tunpath, false);
++        goto cleanup;
++    }
++
++    virDomainAuditNetDevice(def, net, tunpath, true);
++    virMacAddrSet(&tapmac, &net->mac);
++    tapmac.addr[0] = 0xFE;
++
++    if (virNetDevSetMAC(net->ifname, &tapmac) < 0)
++        goto cleanup;
++
++    if (net->script &&
++        virNetDevRunEthernetScript(net->ifname, net->script) < 0)
++        goto cleanup;
++
++    if (cfg->macFilter &&
++        ebtablesAddForwardAllowIn(driver->ebtables,
++                                  net->ifname,
++                                  &net->mac) < 0)
++        goto cleanup;
++
++    if (net->filter &&
++        virDomainConfNWFilterInstantiate(def->uuid, net) < 0) {
++        goto cleanup;
++    }
++
++    ret = 0;
++
++ cleanup:
++    if (ret < 0) {
++        size_t i;
++        for (i = 0; i < tapfdSize && tapfd[i] >= 0; i++)
++            VIR_FORCE_CLOSE(tapfd[i]);
++        if (template_ifname)
++            VIR_FREE(net->ifname);
++    }
++    virObjectUnref(cfg);
++
++    return ret;
++}
+diff --git a/src/qemu/qemu_interface.h b/src/qemu/qemu_interface.h
+index b4c1efc..65feb46 100644
+--- a/src/qemu/qemu_interface.h
++++ b/src/qemu/qemu_interface.h
+@@ -25,10 +25,17 @@
+ # define __QEMU_INTERFACE_H__
+ 
+ # include "domain_conf.h"
++# include "qemu_conf.h"
++# include "qemu_domain.h"
+ 
+ int qemuInterfaceStartDevice(virDomainNetDefPtr net);
+ int qemuInterfaceStartDevices(virDomainDefPtr def);
+ int qemuInterfaceStopDevice(virDomainNetDefPtr net);
+ int qemuInterfaceStopDevices(virDomainDefPtr def);
++int qemuInterfaceEthernetConnect(virDomainDefPtr def,
++                               virQEMUDriverPtr driver,
++                               virDomainNetDefPtr net,
++                               int *tapfd,
++                               size_t tapfdSize);
+ 
+ #endif /* __QEMU_INTERFACE_H__ */
+diff --git a/src/qemu/qemu_process.c b/src/qemu/qemu_process.c
+index 9c5d0f4..d01bea5 100644
+--- a/src/qemu/qemu_process.c
++++ b/src/qemu/qemu_process.c
+@@ -5206,6 +5206,12 @@ void qemuProcessStop(virQEMUDriverPtr driver,
+                              cfg->stateDir));
+             VIR_FREE(net->ifname);
+             break;
++        case VIR_DOMAIN_NET_TYPE_ETHERNET:
++            if (net->ifname) {
++                ignore_value(virNetDevTapDelete(net->ifname, net->backend.tap));
++                VIR_FREE(net->ifname);
++            }
++            break;
+         case VIR_DOMAIN_NET_TYPE_BRIDGE:
+         case VIR_DOMAIN_NET_TYPE_NETWORK:
+ #ifdef VIR_NETDEV_TAP_REQUIRE_MANUAL_CLEANUP
+diff --git a/src/util/virnetdev.c b/src/util/virnetdev.c
+index 98ce152..5a2e169 100644
+--- a/src/util/virnetdev.c
++++ b/src/util/virnetdev.c
+@@ -3085,3 +3085,31 @@ virNetDevGetFeatures(const char *ifname ATTRIBUTE_UNUSED,
+     return 0;
+ }
+ #endif
++
++/**
++ * virNetDevRunEthernetScript:
++ * @ifname: the interface name
++ * @script: the script name
++ *
++ * This function executes script for new tap device created by libvirt.
++ * Returns 0 in case of success or -1 on failure
++ */
++int
++virNetDevRunEthernetScript(const char *ifname, const char *script)
++{
++    virCommandPtr cmd;
++    int ret;
++
++    cmd = virCommandNew(script);
++    virCommandAddArgFormat(cmd, "%s", ifname);
++    virCommandClearCaps(cmd);
++#ifdef CAP_NET_ADMIN
++    virCommandAllowCap(cmd, CAP_NET_ADMIN);
++#endif
++    virCommandAddEnvPassCommon(cmd);
++
++    ret = virCommandRun(cmd, NULL);
++
++    virCommandFree(cmd);
++    return ret;
++}
+diff --git a/src/util/virnetdev.h b/src/util/virnetdev.h
+index 190b70e..29132de 100644
+--- a/src/util/virnetdev.h
++++ b/src/util/virnetdev.h
+@@ -215,4 +215,6 @@ int virNetDevSysfsFile(char **pf_sysfs_device_link,
+                        const char *file)
+     ATTRIBUTE_NONNULL(1) ATTRIBUTE_NONNULL(2) ATTRIBUTE_NONNULL(3)
+     ATTRIBUTE_RETURN_CHECK;
++
++int virNetDevRunEthernetScript(const char *ifname, const char *script);
+ #endif /* __VIR_NETDEV_H__ */
+diff --git a/tests/qemuxml2argvdata/qemuxml2argv-graphics-spice-timeout.args b/tests/qemuxml2argvdata/qemuxml2argv-graphics-spice-timeout.args
+index 8b5d9ee..56f4c38 100644
+--- a/tests/qemuxml2argvdata/qemuxml2argv-graphics-spice-timeout.args
++++ b/tests/qemuxml2argvdata/qemuxml2argv-graphics-spice-timeout.args
+@@ -10,7 +10,7 @@ id=virtio-disk0 \
+ media=cdrom,id=drive-ide0-1-0 \
+ -device ide-drive,bus=ide.1,unit=0,drive=drive-ide0-1-0,id=ide0-1-0 \
+ -device rtl8139,vlan=0,id=net0,mac=52:54:00:71:70:89,bus=pci.0,addr=0x7 \
+--net tap,script=/etc/qemu-ifup,vlan=0,name=hostnet0 -serial pty \
++-net tap,fd=3,vlan=0,name=hostnet0 -serial pty \
+ -device usb-tablet,id=input0 \
+ -spice port=5900 -vga std \
+ -device AC97,id=sound0,bus=pci.0,addr=0x3 \
+diff --git a/tests/qemuxml2argvdata/qemuxml2argv-net-eth-ifname.args b/tests/qemuxml2argvdata/qemuxml2argv-net-eth-ifname.args
+index 2cd18ae..74446bd 100644
+--- a/tests/qemuxml2argvdata/qemuxml2argv-net-eth-ifname.args
++++ b/tests/qemuxml2argvdata/qemuxml2argv-net-eth-ifname.args
+@@ -2,5 +2,5 @@ LC_ALL=C PATH=/bin HOME=/home/test USER=test LOGNAME=test QEMU_AUDIO_DRV=none \
+ /usr/bin/qemu -S -M \
+ pc -m 214 -smp 1 -nographic -monitor unix:/tmp/test-monitor,server,nowait \
+ -no-acpi -boot c -usb -hda /dev/HostVG/QEMUGuest1 -net nic,\
+-macaddr=00:11:22:33:44:55,vlan=0,model=rtl8139 -net tap,ifname=nic02,\
+-script=/etc/qemu-ifup,vlan=0 -serial none -parallel none
++macaddr=00:11:22:33:44:55,vlan=0,model=rtl8139 -net tap,fd=3,vlan=0 \
++-serial none -parallel none
+diff --git a/tests/qemuxml2argvdata/qemuxml2argv-net-eth-ifname.xml b/tests/qemuxml2argvdata/qemuxml2argv-net-eth-ifname.xml
+index d616918..7087840 100644
+--- a/tests/qemuxml2argvdata/qemuxml2argv-net-eth-ifname.xml
++++ b/tests/qemuxml2argvdata/qemuxml2argv-net-eth-ifname.xml
+@@ -25,8 +25,6 @@
+     <controller type='pci' index='0' model='pci-root'/>
+     <interface type='ethernet'>
+       <mac address='00:11:22:33:44:55'/>
+-      <script path='/etc/qemu-ifup'/>
+-      <target dev='nic02'/>
+       <model type='rtl8139'/>
+     </interface>
+     <memballoon model='none'/>
+diff --git a/tests/qemuxml2argvdata/qemuxml2argv-net-eth-names.args b/tests/qemuxml2argvdata/qemuxml2argv-net-eth-names.args
+index 6146e84..1da3f25 100644
+--- a/tests/qemuxml2argvdata/qemuxml2argv-net-eth-names.args
++++ b/tests/qemuxml2argvdata/qemuxml2argv-net-eth-names.args
+@@ -3,6 +3,6 @@ LC_ALL=C PATH=/bin HOME=/home/test USER=test LOGNAME=test QEMU_AUDIO_DRV=none \
+ pc -m 214 -smp 1 -nographic -monitor unix:/tmp/test-monitor,server,nowait \
+ -no-acpi -boot c -usb -hda /dev/HostVG/QEMUGuest1 -net nic,\
+ macaddr=00:11:22:33:44:55,vlan=0,model=rtl8139,name=net0 -net tap,\
+-script=/etc/qemu-ifup,vlan=0,name=hostnet0 -net nic,macaddr=00:11:22:33:44:56,\
+-vlan=1,model=e1000,name=net1 -net tap,script=/etc/qemu-ifup,vlan=1,name=hostnet1 \
++fd=3,vlan=0,name=hostnet0 -net nic,macaddr=00:11:22:33:44:56,\
++vlan=1,model=e1000,name=net1 -net tap,fd=3,vlan=1,name=hostnet1 \
+ -serial none -parallel none
+diff --git a/tests/qemuxml2argvdata/qemuxml2argv-net-eth.args b/tests/qemuxml2argvdata/qemuxml2argv-net-eth.args
+index 28a094b..74446bd 100644
+--- a/tests/qemuxml2argvdata/qemuxml2argv-net-eth.args
++++ b/tests/qemuxml2argvdata/qemuxml2argv-net-eth.args
+@@ -2,5 +2,5 @@ LC_ALL=C PATH=/bin HOME=/home/test USER=test LOGNAME=test QEMU_AUDIO_DRV=none \
+ /usr/bin/qemu -S -M \
+ pc -m 214 -smp 1 -nographic -monitor unix:/tmp/test-monitor,server,nowait \
+ -no-acpi -boot c -usb -hda /dev/HostVG/QEMUGuest1 -net nic,\
+-macaddr=00:11:22:33:44:55,vlan=0,model=rtl8139 -net tap,script=/etc/qemu-ifup,\
+-vlan=0 -serial none -parallel none
++macaddr=00:11:22:33:44:55,vlan=0,model=rtl8139 -net tap,fd=3,vlan=0 \
++-serial none -parallel none
+diff --git a/tests/qemuxml2argvdata/qemuxml2argv-net-eth.xml b/tests/qemuxml2argvdata/qemuxml2argv-net-eth.xml
+index bc1a981..7087840 100644
+--- a/tests/qemuxml2argvdata/qemuxml2argv-net-eth.xml
++++ b/tests/qemuxml2argvdata/qemuxml2argv-net-eth.xml
+@@ -25,7 +25,6 @@
+     <controller type='pci' index='0' model='pci-root'/>
+     <interface type='ethernet'>
+       <mac address='00:11:22:33:44:55'/>
+-      <script path='/etc/qemu-ifup'/>
+       <model type='rtl8139'/>
+     </interface>
+     <memballoon model='none'/>
+diff --git a/tests/qemuxml2argvmock.c b/tests/qemuxml2argvmock.c
+index d24725e..3ad02c8 100644
+--- a/tests/qemuxml2argvmock.c
++++ b/tests/qemuxml2argvmock.c
+@@ -24,9 +24,14 @@
+ #include "virnuma.h"
+ #include "virmock.h"
+ #include "virutil.h"
++#include "virnetdev.h"
++#include "virnetdevtap.h"
++#include "virstring.h"
+ #include <time.h>
+ #include <unistd.h>
+ 
++#define VIR_FROM_THIS VIR_FROM_NONE
++
+ long virGetSystemPageSize(void)
+ {
+     return 4096;
+@@ -59,3 +64,25 @@ virNumaNodeIsAvailable(int node)
+     return node >= 0 && node <= virNumaGetMaxNode();
+ }
+ #endif /* WITH_NUMACTL && HAVE_NUMA_BITMASK_ISBITSET */
++
++int
++virNetDevTapCreate(char **ifname,
++                   const char *tunpath ATTRIBUTE_UNUSED,
++                   int *tapfd,
++                   size_t tapfdSize,
++                   unsigned int flags ATTRIBUTE_UNUSED)
++{
++    size_t i;
++
++    for (i = 0; i < tapfdSize; i++)
++        tapfd[i] = STDERR_FILENO + 1 + i;
++
++    return VIR_STRDUP(*ifname, "vnet0");
++}
++
++int
++virNetDevRunEthernetScript(const char *ifname ATTRIBUTE_UNUSED,
++                           const char *script ATTRIBUTE_UNUSED)
++{
++    return 0;
++}
+diff --git a/tests/qemuxml2argvtest.c b/tests/qemuxml2argvtest.c
+index 958f786..4830b44 100644
+--- a/tests/qemuxml2argvtest.c
++++ b/tests/qemuxml2argvtest.c
+@@ -468,6 +468,7 @@ mymain(void)
+ {
+     int ret = 0;
+     bool skipLegacyCPUs = false;
++    virSecurityManagerPtr mgr;
+ 
+     abs_top_srcdir = getenv("abs_top_srcdir");
+     if (!abs_top_srcdir)
+@@ -520,6 +521,11 @@ mymain(void)
+     if (VIR_STRDUP_QUIET(driver.config->spicePassword, "123456") < 0)
+         return EXIT_FAILURE;
+ 
++    if (!(mgr = virSecurityManagerNew("none", "qemu", false, false, false)))
++        return EXIT_FAILURE;
++    if (!(driver.securityManager = virSecurityManagerNewStack(mgr)))
++        return EXIT_FAILURE;
++
+ # define DO_TEST_FULL(name, migrateFrom, migrateFd, flags, ...)         \
+     do {                                                                \
+         static struct testInfo info = {                                 \

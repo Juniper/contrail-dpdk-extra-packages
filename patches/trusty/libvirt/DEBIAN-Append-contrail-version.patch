@@ -9,7 +9,7 @@ index da45ecd..398e06f 100644
 --- a/debian/changelog
 +++ b/debian/changelog
 @@ -1,3 +1,9 @@
-+libvirt (1.2.16-2ubuntu11.15.10.4~cloud0+contrail1) UNRELEASED; urgency=medium
++libvirt (1.2.16-2ubuntu11.15.10.4~cloud0+contrailexp1) UNRELEASED; urgency=medium
 +
 +  * Contrail patches for multiqueue support with ethernet type interfaces
 +
