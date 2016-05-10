@@ -1,15 +1,15 @@
-commit d477fbd19baa67468ed2aaf7b96934b8a5b6cfd1
-Author: Michal Dubiel <md@semihalf.com>
-Date:   Thu Apr 21 15:33:32 2016 +0200
-
-    Add contrail versioning
-
 diff --git a/debian/changelog b/debian/changelog
-index da45ecd..398e06f 100644
+index da45ecd..9860818 100644
 --- a/debian/changelog
 +++ b/debian/changelog
-@@ -1,3 +1,9 @@
-+libvirt (1.2.16-2ubuntu11.15.10.4~cloud0+contrail1) UNRELEASED; urgency=medium
+@@ -1,3 +1,15 @@
++libvirt (1.2.16-2ubuntu11.15.10.4~cloud0+contrail2) trusty-liberty; urgency=medium
++
++  * Backport vhost-user multiqueue support
++
++ -- Michal Dubiel <md@semihalf.com>  Tue, 10 May 2016 16:05:27 +0200
++
++libvirt (1.2.16-2ubuntu11.15.10.4~cloud0+contrail1) trusty-liberty; urgency=medium
 +
 +  * Contrail patches for multiqueue support with ethernet type interfaces
 +

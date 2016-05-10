@@ -1,0 +1,212 @@
+diff --git a/docs/formatdomain.html.in b/docs/formatdomain.html.in
+index 6d58a40..12af304 100644
+--- a/docs/formatdomain.html.in
++++ b/docs/formatdomain.html.in
+@@ -4249,13 +4249,16 @@ qemu-kvm -net nic,model=? /dev/null
+       </dd>
+       <dt><code>queues</code></dt>
+       <dd>
+-        The optional <code>queues</code> attribute controls the number of
+-        queues to be used for the<a href="http://www.linux-kvm.org/page/Multiqueue">
+-        Multiqueue virtio-net</a> feature. If the interface has <code>&lt;model
+-        type='virtio'/&gt;</code>, multiple packet processing queues can be
+-        created; each queue will potentially be handled by a different
++        The optional <code>queues</code> attribute controls the number
++        of queues to be used for either
++        <a href="http://www.linux-kvm.org/page/Multiqueue"> Multiqueue
++        virtio-net</a> or <a href="#elementVhostuser">vhost-user</a> network
++        interfaces.  Use of multiple packet processing queues requires the
++        interface having the <code>&lt;model type='virtio'/&gt;</code>
++        element.  Each queue will potentially be handled by a different
+         processor, resulting in much higher throughput.
+-        <span class="since">Since 1.0.6 (QEMU and KVM only)</span>
++        <span class="since">virtio-net since 1.0.6 (QEMU and KVM only)</span>
++        <span class="since">vhost-user since 1.2.17 (QEMU and KVM only)</span>
+       </dd>
+       <dt><code>host</code> offloading options</dt>
+       <dd>
+@@ -4576,9 +4579,15 @@ qemu-kvm -net nic,model=? /dev/null
+   &lt;devices&gt;
+     &lt;interface type='vhostuser'&gt;
+       &lt;mac address='52:54:00:3b:83:1a'/&gt;
+-      &lt;source type='unix' path='/tmp/vhost.sock' mode='server'/&gt;
++      &lt;source type='unix' path='/tmp/vhost1.sock' mode='server'/&gt;
+       &lt;model type='virtio'/&gt;
+     &lt;/interface&gt;
++    &lt;interface type='vhostuser'&gt;
++      &lt;mac address='52:54:00:3b:83:1b'/&gt;
++      &lt;source type='unix' path='/tmp/vhost2.sock' mode='client'/&gt;
++      &lt;model type='virtio'/&gt;
++      &lt;driver queues='5'/&gt;
++    &lt;/interface&gt;
+   &lt;/devices&gt;
+   ...</pre>
+ 
+diff --git a/src/qemu/qemu_capabilities.c b/src/qemu/qemu_capabilities.c
+index 4c297bc..096d150 100644
+--- a/src/qemu/qemu_capabilities.c
++++ b/src/qemu/qemu_capabilities.c
+@@ -284,6 +284,8 @@ VIR_ENUM_IMPL(virQEMUCaps, QEMU_CAPS_LAST,
+               "aes-key-wrap",
+               "dea-key-wrap",
+               "pci-serial",
++
++              "vhost-user-multiq", /* 189 */
+     );
+ 
+ 
+@@ -3284,6 +3286,13 @@ virQEMUCapsInitQMPMonitor(virQEMUCapsPtr qemuCaps,
+     if (qemuCaps->version >= 2002000)
+         virQEMUCapsSet(qemuCaps, QEMU_CAPS_MACHINE_VMPORT_OPT);
+ 
++    /* vhost-user supports multi-queue from v2.4.0 onwards,
++     * but there is no way to query for that capability.
++     * For OpenContrail we use qemu 2.3.x with backported vhost-user multiqueue
++     * support, thus the 2.3.0 check here not 2.4 actually. */
++    if (qemuCaps->version >= 2003000)
++        virQEMUCapsSet(qemuCaps, QEMU_CAPS_VHOSTUSER_MULTIQ);
++
+     if (virQEMUCapsProbeQMPCommands(qemuCaps, mon) < 0)
+         goto cleanup;
+     if (virQEMUCapsProbeQMPEvents(qemuCaps, mon) < 0)
+diff --git a/src/qemu/qemu_capabilities.h b/src/qemu/qemu_capabilities.h
+index 9c956f3..3dbd767 100644
+--- a/src/qemu/qemu_capabilities.h
++++ b/src/qemu/qemu_capabilities.h
+@@ -228,6 +228,7 @@ typedef enum {
+     QEMU_CAPS_AES_KEY_WRAP       = 186, /* -machine aes_key_wrap */
+     QEMU_CAPS_DEA_KEY_WRAP       = 187, /* -machine dea_key_wrap */
+     QEMU_CAPS_DEVICE_PCI_SERIAL  = 188, /* -device pci-serial */
++    QEMU_CAPS_VHOSTUSER_MULTIQ   = 189, /* vhost-user with -netdev queues= */
+ 
+     QEMU_CAPS_LAST,                   /* this must always be the last item */
+ } virQEMUCapsFlags;
+diff --git a/src/qemu/qemu_command.c b/src/qemu/qemu_command.c
+index a536578..b2a4889 100644
+--- a/src/qemu/qemu_command.c
++++ b/src/qemu/qemu_command.c
+@@ -8095,6 +8095,7 @@ qemuBuildVhostuserCommandLine(virCommandPtr cmd,
+ {
+     virBuffer chardev_buf = VIR_BUFFER_INITIALIZER;
+     virBuffer netdev_buf = VIR_BUFFER_INITIALIZER;
++    unsigned int queues = net->driver.virtio.queues;
+     char *nic = NULL;
+ 
+     if (!qemuDomainSupportsNetdev(def, qemuCaps, net)) {
+@@ -8132,13 +8133,24 @@ qemuBuildVhostuserCommandLine(virCommandPtr cmd,
+     virBufferAsprintf(&netdev_buf, "type=vhost-user,id=host%s,chardev=char%s",
+                       net->info.alias, net->info.alias);
+ 
++    if (queues > 1) {
++        if (!virQEMUCapsGet(qemuCaps, QEMU_CAPS_VHOSTUSER_MULTIQ)) {
++            virReportError(VIR_ERR_CONFIG_UNSUPPORTED, "%s",
++                           _("multi-queue is not supported for vhost-user "
++                             "with this QEMU binary"));
++            goto error;
++        }
++        virBufferAsprintf(&netdev_buf, ",queues=%u", queues);
++    }
++
+     virCommandAddArg(cmd, "-chardev");
+     virCommandAddArgBuffer(cmd, &chardev_buf);
+ 
+     virCommandAddArg(cmd, "-netdev");
+     virCommandAddArgBuffer(cmd, &netdev_buf);
+ 
+-    if (!(nic = qemuBuildNicDevStr(def, net, -1, bootindex, 0, qemuCaps))) {
++    if (!(nic = qemuBuildNicDevStr(def, net, -1, bootindex,
++                                   queues, qemuCaps))) {
+         virReportError(VIR_ERR_INTERNAL_ERROR,
+                        "%s", _("Error generating NIC -device string"));
+         goto error;
+diff --git a/tests/qemuxml2argvdata/qemuxml2argv-net-vhostuser-multiq.args b/tests/qemuxml2argvdata/qemuxml2argv-net-vhostuser-multiq.args
+new file mode 100644
+index 0000000..8affb53
+--- /dev/null
++++ b/tests/qemuxml2argvdata/qemuxml2argv-net-vhostuser-multiq.args
+@@ -0,0 +1,16 @@
++LC_ALL=C PATH=/bin HOME=/home/test USER=test LOGNAME=test QEMU_AUDIO_DRV=none \
++/usr/bin/qemu -S -M \
++pc -m 214 -smp 1 -nographic -nodefaults -monitor unix:/tmp/test-monitor,server,nowait \
++-no-acpi -boot c -usb -hda /dev/HostVG/QEMUGuest1 \
++-chardev socket,id=charnet0,path=/tmp/vhost0.sock,server \
++-netdev type=vhost-user,id=hostnet0,chardev=charnet0 \
++-device virtio-net-pci,netdev=hostnet0,id=net0,mac=52:54:00:ee:96:6b,bus=pci.0,addr=0x3 \
++-chardev socket,id=charnet1,path=/tmp/vhost1.sock \
++-netdev type=vhost-user,id=hostnet1,chardev=charnet1 \
++-device virtio-net-pci,netdev=hostnet1,id=net1,mac=52:54:00:ee:96:6c,bus=pci.0,addr=0x4 \
++-netdev socket,listen=:2015,id=hostnet2 \
++-device rtl8139,netdev=hostnet2,id=net2,mac=52:54:00:95:db:c0,bus=pci.0,addr=0x5 \
++-chardev socket,id=charnet3,path=/tmp/vhost2.sock \
++-netdev type=vhost-user,id=hostnet3,chardev=charnet3,queues=4 \
++-device virtio-net-pci,mq=on,vectors=10,netdev=hostnet3,id=net3,mac=52:54:00:ee:96:6d,\
++bus=pci.0,addr=0x6
+diff --git a/tests/qemuxml2argvdata/qemuxml2argv-net-vhostuser-multiq.xml b/tests/qemuxml2argvdata/qemuxml2argv-net-vhostuser-multiq.xml
+new file mode 100644
+index 0000000..422fa92
+--- /dev/null
++++ b/tests/qemuxml2argvdata/qemuxml2argv-net-vhostuser-multiq.xml
+@@ -0,0 +1,49 @@
++<domain type='qemu'>
++  <name>QEMUGuest1</name>
++  <uuid>c7a5fdbd-edaf-9455-926a-d65c16db1809</uuid>
++  <memory unit='KiB'>219136</memory>
++  <currentMemory unit='KiB'>219136</currentMemory>
++  <vcpu placement='static'>1</vcpu>
++  <os>
++    <type arch='i686' machine='pc'>hvm</type>
++    <boot dev='hd'/>
++  </os>
++  <clock offset='utc'/>
++  <on_poweroff>destroy</on_poweroff>
++  <on_reboot>restart</on_reboot>
++  <on_crash>destroy</on_crash>
++  <devices>
++    <emulator>/usr/bin/qemu</emulator>
++    <disk type='block' device='disk'>
++      <driver name='qemu' type='raw'/>
++      <source dev='/dev/HostVG/QEMUGuest1'/>
++      <target dev='hda' bus='ide'/>
++      <address type='drive' controller='0' bus='0' target='0' unit='0'/>
++    </disk>
++    <controller type='usb' index='0'/>
++    <controller type='ide' index='0'/>
++    <controller type='pci' index='0' model='pci-root'/>
++    <interface type='vhostuser'>
++      <mac address='52:54:00:ee:96:6b'/>
++      <source type='unix' path='/tmp/vhost0.sock' mode='server'/>
++      <model type='virtio'/>
++    </interface>
++    <interface type='vhostuser'>
++      <mac address='52:54:00:ee:96:6c'/>
++      <source type='unix' path='/tmp/vhost1.sock' mode='client'/>
++      <model type='virtio'/>
++    </interface>
++    <interface type='server'>
++      <mac address='52:54:00:95:db:c0'/>
++      <source port='2015'/>
++      <model type='rtl8139'/>
++    </interface>
++    <interface type='vhostuser'>
++      <mac address='52:54:00:ee:96:6d'/>
++      <source type='unix' path='/tmp/vhost2.sock' mode='client'/>
++      <model type='virtio'/>
++      <driver queues='4'/>
++    </interface>
++    <memballoon model='none'/>
++  </devices>
++</domain>
+diff --git a/tests/qemuxml2argvtest.c b/tests/qemuxml2argvtest.c
+index 958f786..320daa7 100644
+--- a/tests/qemuxml2argvtest.c
++++ b/tests/qemuxml2argvtest.c
+@@ -980,6 +980,9 @@ mymain(void)
+     DO_TEST("misc-uuid", QEMU_CAPS_NAME, QEMU_CAPS_UUID);
+     DO_TEST_PARSE_ERROR("vhost_queues-invalid", NONE);
+     DO_TEST("net-vhostuser", QEMU_CAPS_DEVICE, QEMU_CAPS_NETDEV);
++    DO_TEST("net-vhostuser-multiq",
++            QEMU_CAPS_DEVICE, QEMU_CAPS_NETDEV, QEMU_CAPS_VHOSTUSER_MULTIQ);
++    DO_TEST_FAILURE("net-vhostuser-multiq", QEMU_CAPS_DEVICE, QEMU_CAPS_NETDEV);
+     DO_TEST("net-user", NONE);
+     DO_TEST("net-virtio", NONE);
+     DO_TEST("net-virtio-device",
