@@ -1,0 +1,12 @@
+diff --git a/debian/apparmor/libvirt-qemu b/debian/apparmor/libvirt-qemu
+index acf912b..6072be1 100644
+--- a/debian/apparmor/libvirt-qemu
++++ b/debian/apparmor/libvirt-qemu
+@@ -172,6 +172,7 @@
+   # for access to hugepages
+   owner "/run/hugepages/kvm/libvirt/qemu/**" rw,
+   owner "/dev/hugepages/libvirt/qemu/**" rw,
++  owner "/hugepages/libvirt/qemu/**" rw,
+ 
+   # for usb access
+   /dev/bus/usb/ r,
