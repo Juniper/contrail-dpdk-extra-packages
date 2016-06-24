@@ -1,0 +1,15 @@
+diff --git a/debian/changelog b/debian/changelog
+index 8488107..8c10f1e 100644
+--- a/debian/changelog
++++ b/debian/changelog
+@@ -1,3 +1,10 @@
++qemu (1:2.3+dfsg-5ubuntu9.4~cloud0+contrail1) UNRELEASED; urgency=medium
++
++  * Contrail patches for vhost connect and chardev reconnect
++    - Forward port of Kilo patches by Andriy Berestovskyy
++
++ -- Michal Dubiel <md@semihalf.com>  Wed, 22 Jun 2016 12:50:43 +0200
++
+ qemu (1:2.3+dfsg-5ubuntu9.4~cloud0) trusty-liberty; urgency=medium
+ 
+   * New update for the Ubuntu Cloud Archive.

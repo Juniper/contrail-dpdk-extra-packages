@@ -1,3 +1,11 @@
+dpdk-depends-packages (14.04-liberty1) trusty; urgency=low
+
+  * Updated qemu packages
+  * Removed libvirt packages as correct version is already in
+    contrail_install_repo
+
+ -- Michal Dubiel <md@semihalf.com>  Wed, 22 Jun 2016 13:35:22 +0200
+
 dpdk-depends-packages (14.04-contrail6) trusty; urgency=low
 
   * Updated Qemu to detect chardev disconnection.
