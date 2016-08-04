@@ -1,4 +1,4 @@
-dpdk-depends-packages (12.04-contrail2) trusty; urgency=low
+dpdk-depends-packages (12.04-kilo1) trusty; urgency=low
 
   * Updated contrail-dpdk-kernel-modules-dkms to DPDK 2.1.
 
