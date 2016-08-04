@@ -346,6 +346,39 @@ index e7719d5..4ff2cdb 100644
 +
 +int virNetDevRunEthernetScript(const char *ifname, const char *script);
  #endif /* __VIR_NETDEV_H__ */
+diff --git a/src/util/virnetdevtap.c b/src/util/virnetdevtap.c
+index b34cbb7..93f276a 100644
+--- a/src/util/virnetdevtap.c
++++ b/src/util/virnetdevtap.c
+@@ -309,6 +309,9 @@ int virNetDevTapCreate(char **ifname,
+         tapfd[i] = fd;
+     }
+ 
++    if (virNetDevSetOnline(*ifname, !!(flags & VIR_NETDEV_TAP_CREATE_IFUP)) < 0)
++        goto cleanup;
++
+     ret = 0;
+ 
+  cleanup:
+@@ -447,6 +450,8 @@ int virNetDevTapCreate(char **ifname,
+     if (virNetDevSetName(ifr.ifr_name, *ifname) == -1)
+         goto cleanup;
+ 
++    if (virNetDevSetOnline(*ifname, !!(flags & VIR_NETDEV_TAP_CREATE_IFUP)) < 0)
++        goto cleanup;
+ 
+     ret = 0;
+  cleanup:
+@@ -594,9 +599,6 @@ int virNetDevTapCreateInBridgePort(const char *brname,
+             goto error;
+     }
+ 
+-    if (virNetDevSetOnline(*ifname, !!(flags & VIR_NETDEV_TAP_CREATE_IFUP)) < 0)
+-        goto error;
+-
+     return 0;
+ 
+  error:
 diff --git a/tests/qemuxml2argvdata/qemuxml2argv-graphics-spice-timeout.args b/tests/qemuxml2argvdata/qemuxml2argv-graphics-spice-timeout.args
 index 376793f..fa3ea53 100644
 --- a/tests/qemuxml2argvdata/qemuxml2argv-graphics-spice-timeout.args
