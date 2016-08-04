@@ -88,6 +88,10 @@ shift
 if [ ! -s "$BASETGZ" ]; then
     echo "Creating base system..."
     run pbuilder --create --configfile $PBUILDER_CONF
+else
+    # Update the base system
+    echo "Updating base system..."
+    run pbuilder --update --override-config --configfile $PBUILDER_CONF
 fi
 
 # Get pkgs to build
