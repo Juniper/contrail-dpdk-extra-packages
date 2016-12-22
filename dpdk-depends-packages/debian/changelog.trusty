@@ -1,3 +1,9 @@
+dpdk-depends-packages (14.04-mitaka2) trusty; urgency=low
+
+  * Compilation fixes for kernel version > 4.3 
+
+ -- Kiran KN <kirankn@juniper.net>  Sun, 18 Dec 2016 17:45:10 +0100
+
 dpdk-depends-packages (14.04-mitaka1) trusty; urgency=low
 
   * Mitaka OpenStack support
