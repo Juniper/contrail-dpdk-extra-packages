@@ -6,7 +6,7 @@ MIRRORSITE="http://us.archive.ubuntu.com/ubuntu/"
 : ${ARCH:="$(dpkg --print-architecture)"}
 
 # Set OpenStack relase name
-OPEN_STACK="mitaka"
+OPEN_STACK="newton"
 
 # Create a chroot for buildd
 DEBOOTSTRAPOPTS=("--variant=buildd" "${DEBOOTSTRAPOPTS[@]}")
