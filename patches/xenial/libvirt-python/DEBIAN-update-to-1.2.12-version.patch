@@ -8,7 +8,13 @@ diff --git a/debian/changelog b/debian/changelog
 index f36983a..ae76e2f 100644
 --- a/debian/changelog
 +++ b/debian/changelog
-@@ -1,3 +1,9 @@
+@@ -1,3 +1,15 @@
++libvirt-python (1.2.12-0ubuntu1~xenial+contrail2) xenial; urgency=medium
++
++  * Rename version for xenial
++
++ -- Kiran KN <kirankn@juniper.net>  Sun, 21 May 2017 15:11:17 +0200
++
 +libvirt-python (1.2.12-0ubuntu1+contrail2) trusty; urgency=medium
 +
 +  * Initial back port for Ubuntu 14.04.
