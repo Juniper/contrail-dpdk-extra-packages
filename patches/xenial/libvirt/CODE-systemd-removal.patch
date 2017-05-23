@@ -1,0 +1,181 @@
+diff --git a/configure.ac b/configure.ac
+--- a/configure.ac	2017-05-22 19:17:15.507109372 -0700
++++ b/configure.ac	2017-05-22 19:22:54.781394164 -0700
+@@ -254,7 +254,6 @@
+ LIBVIRT_CHECK_SASL
+ LIBVIRT_CHECK_SELINUX
+ LIBVIRT_CHECK_SSH2
+-LIBVIRT_CHECK_SYSTEMD_DAEMON
+ LIBVIRT_CHECK_UDEV
+ LIBVIRT_CHECK_WIRESHARK
+ LIBVIRT_CHECK_YAJL
+@@ -2898,7 +2897,6 @@
+ LIBVIRT_RESULT_SASL
+ LIBVIRT_RESULT_SELINUX
+ LIBVIRT_RESULT_SSH2
+-LIBVIRT_RESULT_SYSTEMD_DAEMON
+ LIBVIRT_RESULT_UDEV
+ LIBVIRT_RESULT_WIRESHARK
+ LIBVIRT_RESULT_YAJL
+diff --git a/libvirt.spec.in b/libvirt.spec.in
+--- a/libvirt.spec.in	2017-05-22 19:17:15.295107935 -0700
++++ b/libvirt.spec.in	2017-05-22 19:23:45.821709321 -0700
+@@ -149,7 +149,6 @@
+ %define with_firewalld     0%{!?_without_firewalld:0}
+ %define with_libssh2       0%{!?_without_libssh2:0}
+ %define with_wireshark     0%{!?_without_wireshark:0}
+-%define with_systemd_daemon 0%{!?_without_systemd_daemon:0}
+ %define with_pm_utils      1
+ 
+ # Non-server/HV driver defaults which are always enabled
+@@ -208,7 +207,6 @@
+ # Fedora has systemd, libvirt still used sysvinit there.
+ %if 0%{?fedora} >= 17 || 0%{?rhel} >= 7
+     %define with_systemd 1
+-    %define with_systemd_daemon 1
+     %define with_pm_utils 0
+ %endif
+ 
+@@ -446,9 +444,6 @@
+ %if %{with_systemd}
+ BuildRequires: systemd-units
+ %endif
+-%if %{with_systemd_daemon}
+-BuildRequires: systemd-devel
+-%endif
+ %if %{with_xen} || %{with_libxl}
+ BuildRequires: xen-devel
+ %endif
+diff --git a/m4/virt-systemd-daemon.m4 b/m4/virt-systemd-daemon.m4
+--- a/m4/virt-systemd-daemon.m4 2017-05-22 19:42:05.396592558 -0700
++++ b/m4/virt-systemd-daemon.m4 2017-05-22 19:44:09.289374031 -0700
+@@ -1,34 +0,0 @@
+-dnl The libsystemd-daemon.so library
+-dnl
+-dnl Copyright (C) 2012-2013 Red Hat, Inc.
+-dnl
+-dnl This library is free software; you can redistribute it and/or
+-dnl modify it under the terms of the GNU Lesser General Public
+-dnl License as published by the Free Software Foundation; either
+-dnl version 2.1 of the License, or (at your option) any later version.
+-dnl
+-dnl This library is distributed in the hope that it will be useful,
+-dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
+-dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-dnl Lesser General Public License for more details.
+-dnl
+-dnl You should have received a copy of the GNU Lesser General Public
+-dnl License along with this library.  If not, see
+-dnl <http://www.gnu.org/licenses/>.
+-dnl
+-
+-AC_DEFUN([LIBVIRT_CHECK_SYSTEMD_DAEMON],[
+-  LIBVIRT_CHECK_PKG([SYSTEMD_DAEMON], [libsystemd], [209])
+-
+-    old_CFLAGS="$CFLAGS"
+-    old_LIBS="$LIBS"
+-    CFLAGS="$CFLAGS $SYSTEMD_DAEMON_CFLAGS"
+-    LIBS="$LIBS $SYSTEMD_DAEMON_LIBS"
+-    AC_CHECK_FUNCS([sd_notify])
+-    CFLAGS="$old_CFLAGS"
+-    LIBS="$old_LIBS"
+-])
+-
+-AC_DEFUN([LIBVIRT_RESULT_SYSTEMD_DAEMON],[
+-  LIBVIRT_RESULT_LIB([SYSTEMD_DAEMON])
+-])
+diff --git a/src/Makefile.am b/src/Makefile.am
+--- a/src/Makefile.am	2017-05-22 19:17:15.319108098 -0700
++++ b/src/Makefile.am	2017-05-22 19:24:26.753962382 -0700
+@@ -1094,12 +1094,12 @@
+ libvirt_util_la_CFLAGS = $(CAPNG_CFLAGS) $(YAJL_CFLAGS) $(LIBNL_CFLAGS) \
+ 		$(AM_CFLAGS) $(AUDIT_CFLAGS) $(DEVMAPPER_CFLAGS) \
+ 		$(DBUS_CFLAGS) $(LDEXP_LIBM) $(NUMACTL_CFLAGS)	\
+-		$(SYSTEMD_DAEMON_CFLAGS) $(POLKIT_CFLAGS) \
++		$(POLKIT_CFLAGS) \
+ 		-I$(srcdir)/conf
+ libvirt_util_la_LIBADD = $(CAPNG_LIBS) $(YAJL_LIBS) $(LIBNL_LIBS) \
+ 		$(THREAD_LIBS) $(AUDIT_LIBS) $(DEVMAPPER_LIBS) \
+ 		$(LIB_CLOCK_GETTIME) $(DBUS_LIBS) $(MSCOM_LIBS) $(LIBXML_LIBS) \
+-		$(SECDRIVER_LIBS) $(NUMACTL_LIBS) $(SYSTEMD_DAEMON_LIBS) \
++		$(SECDRIVER_LIBS) $(NUMACTL_LIBS) \
+ 		$(POLKIT_LIBS)
+ 
+ 
+diff --git a/src/util/virsystemd.c b/src/util/virsystemd.c
+--- a/src/util/virsystemd.c	2017-05-22 19:17:15.311108044 -0700
++++ b/src/util/virsystemd.c	2017-05-22 19:25:30.354356154 -0700
+@@ -21,8 +21,9 @@
+ 
+ #include <config.h>
+ 
+-#ifdef WITH_SYSTEMD_DAEMON
+-# include <systemd/sd-daemon.h>
++#include <sys/socket.h>
++#ifdef HAVE_SYS_UN_H
++#include <sys/un.h>
+ #endif
+ 
+ #include "virsystemd.h"
+@@ -33,6 +34,7 @@
+ #include "virutil.h"
+ #include "virlog.h"
+ #include "virerror.h"
++#include "virfile.h"
+ 
+ #define VIR_FROM_THIS VIR_FROM_SYSTEMD
+ 
+@@ -406,9 +408,50 @@
+ void
+ virSystemdNotifyStartup(void)
+ {
+-#ifdef WITH_SYSTEMD_DAEMON
+-    sd_notify(0, "READY=1");
+-#endif
++#ifdef HAVE_SYS_UN_H
++    const char *path;
++    const char *msg = "READY=1";
++    int fd;
++    struct sockaddr_un un = {
++        .sun_family = AF_UNIX,
++    };
++    struct iovec iov = {
++        .iov_base = (char *)msg,
++        .iov_len = strlen(msg),
++    };
++    struct msghdr mh = {
++        .msg_name = &un,
++        .msg_namelen = sizeof(un),
++        .msg_iov = &iov,
++        .msg_iovlen = 1,
++    };
++
++    if (!(path = virGetEnvBlockSUID("NOTIFY_SOCKET"))) {
++        VIR_DEBUG("Skipping systemd notify, not requested");
++        return;
++    }
++
++    /* NB sun_path field is *not* NUL-terminated, hence >, not >= */
++    if (strlen(path) > sizeof(un.sun_path)) {
++        VIR_WARN("Systemd notify socket path '%s' too long", path);
++        return;
++    }
++
++    memcpy(un.sun_path, path, strlen(path));
++    if (un.sun_path[0] == '@')
++        un.sun_path[0] = '\0';
++
++    fd = socket(AF_UNIX, SOCK_DGRAM, 0);
++    if (fd < 0) {
++        VIR_WARN("Unable to create socket FD");
++        return;
++    }
++
++    if (sendmsg(fd, &mh, MSG_NOSIGNAL) < 0)
++        VIR_WARN("Failed to notify systemd");
++
++    VIR_FORCE_CLOSE(fd);
++#endif /* HAVE_SYS_UN_H */
+ }
+ 
+ static int
