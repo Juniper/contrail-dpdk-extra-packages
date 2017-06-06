@@ -1,5 +1,11 @@
 dpdk-depends-packages (12.04-kilo1) trusty; urgency=low
 
+  * Updated contrail-dpdk-kernel-modules-dkms to DPDK 17.02.
+ 
+ -- Ram Yadav <ryadav@juniper.net>
+
+dpdk-depends-packages (12.04-kilo1) trusty; urgency=low
+
   * Updated contrail-dpdk-kernel-modules-dkms to DPDK 2.1.
 
  -- Andriy Berestovskyy <aber@semihalf.com>  Wed, 14 Oct 2015 17:17:17 +0100
