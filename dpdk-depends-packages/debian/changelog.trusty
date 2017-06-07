@@ -1,3 +1,9 @@
+dpdk-depends-packages (14.04-mitaka3) trusty; urgency=low
+
+  * Updated contrail-dpdk-kernel-modules-dkms to DPDK 17.02.
+
+ -- Ram Yadav <ryadav@juniper.net>  Wed, 22 Mar 2017 12:12:12 +0100
+
 dpdk-depends-packages (14.04-mitaka2) trusty; urgency=low
 
   * Compilation fixes for kernel version > 4.3 
