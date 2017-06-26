@@ -1,6 +1,6 @@
 dpdk-depends-packages (12.04-contrail3) trusty; urgency=low
 
-  * Updated contrail-dpdk-kernel-modules-dkms to DPDK 17.02.
+  * Updated contrail-dpdk-kernel-modules-dkms to DPDK 17.05.
  
  -- Ram Yadav <ryadav@juniper.net>
 
