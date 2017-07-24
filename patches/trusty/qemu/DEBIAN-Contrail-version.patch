@@ -2,7 +2,13 @@ diff --git a/debian/changelog b/debian/changelog
 index 594fac7..91783cf 100644
 --- a/debian/changelog
 +++ b/debian/changelog
-@@ -1,3 +1,9 @@
+@@ -1,3 +1,15 @@
++qemu (1:2.5+dfsg-5ubuntu10.2~cloud0+contrail2) UNRELEASED; urgency=medium
++
++  * Contrail patches for invalid access in vhost-user code
++
++ -- Jeya ganesh babu J <jjeya@juniper.net>  Mon, 10 Jul 2017 11:55:46 -0800
++
 +qemu (1:2.5+dfsg-5ubuntu10.2~cloud0+contrail1) UNRELEASED; urgency=medium
 +
 +  * Contrail patches for vhost-user receive and chardev reconnect
