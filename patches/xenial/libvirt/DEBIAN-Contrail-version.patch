@@ -1,29 +1,26 @@
-diff --git a/debian/changelog b/debian/changelog
-index 7cad9d9..3a03f3b 100644
---- a/debian/changelog
-+++ b/debian/changelog
-@@ -1,3 +1,24 @@
-+libvirt (1.3.1-1ubuntu10.1~xenial1+contrail1) UNRELEASED; urgency=medium
+diff -Nuar libvirt-2.5.0.orig/debian/changelog libvirt-2.5.0/debian/changelog
+--- libvirt-2.5.0.orig/debian/changelog	2017-08-02 19:07:52.004000000 -0700
++++ libvirt-2.5.0/debian/changelog	2017-08-02 19:15:21.356000000 -0700
+@@ -1,3 +1,22 @@
++libvirt (2.5.0-3ubuntu5.3~cloud0~xenial0+contrail2) xenial-ocata; urgency=medium
 +
-+  * Fixes this issue for xenial - 
-+  - https://bugzilla.redhat.com/show_bug.cgi?id=1314881 
-+  - https://github.com/libvirt/libvirt/commit/c0bc172383c2c955394589e5808457935ae06f1d#diff-672498d978388a4623c2b8dda85e71e5
++  * Support for openstack ocata   
 +
-+ -- Kiran KN <kirankn@juniper.net>  Sun, 22 May 2017 15:11:17 +0200
++ -- Jeya ganesh babu J <jjeya@juniper.net>  Wed, 02 Aug 2017 20:59:00 -0800
 +
-+libvirt (1.3.1-1ubuntu10.1~xenial0+contrail1) UNRELEASED; urgency=medium
++libvirt (2.5.0-3ubuntu5.3~cloud0~xenial0+contrail1) xenial-ocata; urgency=medium
 +
 +  * Support for openstack newton 
 +
 + -- Kiran KN <kirankn@juniper.net>  Sun, 21 May 2017 15:11:17 +0200
 +
-+libvirt (1.3.1-1ubuntu10.1~cloud0+contrail1) UNRELEASED; urgency=medium
++libvirt (2.5.0-3ubuntu5.3~cloud0~xenial0+contrail0) xenial-ocata; urgency=medium
 +
 +  * Support multiqueues with ethernet type interfaces.
 +  * Apparmor permissions adjustments.
 +
 + -- Michal Dubiel <md@semihalf.com>  Tue, 14 Jun 2016 15:11:17 +0200
 +
- libvirt (1.3.1-1ubuntu10.1~cloud0) trusty-mitaka; urgency=medium
+ libvirt (2.5.0-3ubuntu5.3~cloud0) xenial-ocata; urgency=medium
  
    * New update for the Ubuntu Cloud Archive.

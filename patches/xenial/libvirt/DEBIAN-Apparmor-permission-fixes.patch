@@ -1,12 +1,20 @@
-diff --git a/debian/apparmor/libvirt-qemu b/debian/apparmor/libvirt-qemu
-index acf912b..6072be1 100644
---- a/debian/apparmor/libvirt-qemu
-+++ b/debian/apparmor/libvirt-qemu
-@@ -172,6 +172,7 @@
-   # for access to hugepages
-   owner "/run/hugepages/kvm/libvirt/qemu/**" rw,
-   owner "/dev/hugepages/libvirt/qemu/**" rw,
-+  owner "/hugepages/libvirt/qemu/**" rw,
- 
-   # for usb access
-   /dev/bus/usb/ r,
+diff -Nuar a/debian/patches/ubuntu/0004-apparmor-apply-ubuntu-delta.patch b/debian/patches/ubuntu/0004-apparmor-apply-ubuntu-delta.patch
+--- a/debian/patches/ubuntu/0004-apparmor-apply-ubuntu-delta.patch	2017-08-02 19:07:52.004000000 -0700
++++ b/debian/patches/ubuntu/0004-apparmor-apply-ubuntu-delta.patch	2017-08-02 19:11:21.528000000 -0700
+@@ -158,7 +158,7 @@
+  
+    # for restore
+    /{usr/,}bin/bash rmix,
+-@@ -151,3 +175,40 @@
++@@ -151,3 +175,41 @@
+    /etc/udev/udev.conf r,
+    /sys/bus/ r,
+    /sys/class/ r,
+@@ -175,6 +175,7 @@
+ +  # for access to hugepages
+ +  owner "/run/hugepages/kvm/libvirt/qemu/**" rw,
+ +  owner "/dev/hugepages/libvirt/qemu/**" rw,
+++  owner "/hugepages/libvirt/qemu/**" rw,
+ +
+ +@@ifge 2009
+ +  signal (receive) peer=/usr/sbin/libvirtd,

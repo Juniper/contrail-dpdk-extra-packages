@@ -1,8 +1,7 @@
-diff --git a/src/qemu/qemu_command.c b/src/qemu/qemu_command.c
-index 3ae9591..44a2cf0 100644
---- a/src/qemu/qemu_command.c
-+++ b/src/qemu/qemu_command.c
-@@ -5568,7 +5568,8 @@ qemuBuildHostNetStr(virDomainNetDefPtr net,
+diff -Nuar libvirt-2.5.0.orig/src/qemu/qemu_command.c libvirt-2.5.0/src/qemu/qemu_command.c
+--- libvirt-2.5.0.orig/src/qemu/qemu_command.c	2017-08-02 21:13:59.792000000 -0700
++++ libvirt-2.5.0/src/qemu/qemu_command.c	2017-08-02 21:16:35.180000000 -0700
+@@ -3699,7 +3699,8 @@
                      char **tapfd,
                      size_t tapfdSize,
                      char **vhostfd,
@@ -12,7 +11,7 @@ index 3ae9591..44a2cf0 100644
  {
      bool is_tap = false;
      virBuffer buf = VIR_BUFFER_INITIALIZER;
-@@ -5676,7 +5677,12 @@ qemuBuildHostNetStr(virDomainNetDefPtr net,
+@@ -3802,7 +3803,12 @@
      }
  
      if (is_tap) {
@@ -23,28 +22,27 @@ index 3ae9591..44a2cf0 100644
 +                virBufferAsprintf(&buf, ",queues=%u", net->driver.virtio.queues);
 +            }
 +        } else if (vhostfdSize) {
-             virBufferAddLit(&buf, ",vhost=on,");
+             virBufferAddLit(&buf, "vhost=on,");
              if (vhostfdSize == 1) {
-                 virBufferAsprintf(&buf, "vhostfd=%s", vhostfd[0]);
-@@ -8811,6 +8817,7 @@ qemuBuildInterfaceCommandLine(virCommandPtr cmd,
-     virQEMUDriverConfigPtr cfg = NULL;
+                 virBufferAsprintf(&buf, "vhostfd=%s,", vhostfd[0]);
+@@ -7987,7 +7993,7 @@
+ 
+     if (!(netdev = qemuBuildHostNetStr(net, driver,
+                                        ',', -1,
+-                                       NULL, 0, NULL, 0)))
++                                       NULL, 0, NULL, 0, 0)))
+         goto error;
+ 
+ 
+@@ -8046,6 +8052,7 @@
+     virDomainNetType actualType = virDomainNetGetActualType(net);
      virNetDevBandwidthPtr actualBandwidth;
      size_t i;
 +    unsigned int queues = 0;
  
  
      if (!bootindex)
-@@ -8830,7 +8837,8 @@ qemuBuildInterfaceCommandLine(virCommandPtr cmd,
-     if (net->driver.virtio.queues > 0 &&
-         !(actualType == VIR_DOMAIN_NET_TYPE_NETWORK ||
-           actualType == VIR_DOMAIN_NET_TYPE_BRIDGE ||
--          actualType == VIR_DOMAIN_NET_TYPE_DIRECT)) {
-+          actualType == VIR_DOMAIN_NET_TYPE_DIRECT ||
-+          actualType == VIR_DOMAIN_NET_TYPE_ETHERNET)) {
-         virReportError(VIR_ERR_CONFIG_UNSUPPORTED,
-                        _("Multiqueue network is not supported for: %s"),
-                        virDomainNetTypeToString(actualType));
-@@ -8949,7 +8957,6 @@ qemuBuildInterfaceCommandLine(virCommandPtr cmd,
+@@ -8221,7 +8228,6 @@
  
      if ((actualType == VIR_DOMAIN_NET_TYPE_NETWORK ||
           actualType == VIR_DOMAIN_NET_TYPE_BRIDGE ||
@@ -52,7 +50,7 @@ index 3ae9591..44a2cf0 100644
           actualType == VIR_DOMAIN_NET_TYPE_DIRECT) &&
          !standalone) {
          /* Attempt to use vhost-net mode for these types of
-@@ -8968,6 +8975,23 @@ qemuBuildInterfaceCommandLine(virCommandPtr cmd,
+@@ -8241,6 +8247,24 @@
              goto cleanup;
      }
  
@@ -68,7 +66,8 @@ index 3ae9591..44a2cf0 100644
 +
 +            memset(vhostfd, -1, vhostfdSize * sizeof(vhostfd[0]));
 +
-+            if (qemuOpenVhostNet(def, net, qemuCaps, vhostfd, &vhostfdSize) < 0)
++            if (qemuInterfaceOpenVhostNet(def, net, qemuCaps,
++                                          vhostfd, &vhostfdSize) < 0)
 +                goto cleanup;
 +        }
 +    }
@@ -76,7 +75,7 @@ index 3ae9591..44a2cf0 100644
      for (i = 0; i < tapfdSize; i++) {
          if (virSecurityManagerSetTapFDLabel(driver->securityManager,
                                              def, tapfd[i]) < 0)
-@@ -8997,13 +9021,16 @@ qemuBuildInterfaceCommandLine(virCommandPtr cmd,
+@@ -8270,13 +8294,16 @@
          if (!(host = qemuBuildHostNetStr(net, driver,
                                           ',', vlan,
                                           tapfdName, tapfdSize,
@@ -87,7 +86,7 @@ index 3ae9591..44a2cf0 100644
              goto cleanup;
          virCommandAddArgList(cmd, "-netdev", host, NULL);
      }
-     if (qemuDomainSupportsNicdev(def, qemuCaps, net)) {
+     if (qemuDomainSupportsNicdev(def, net)) {
          if (!(nic = qemuBuildNicDevStr(def, net, vlan, bootindex,
 -                                       vhostfdSize, qemuCaps)))
 +                                       queues ? queues : vhostfdSize,
@@ -95,7 +94,7 @@ index 3ae9591..44a2cf0 100644
              goto cleanup;
          virCommandAddArgList(cmd, "-device", nic, NULL);
      } else {
-@@ -9015,7 +9042,9 @@ qemuBuildInterfaceCommandLine(virCommandPtr cmd,
+@@ -8288,7 +8315,9 @@
          if (!(host = qemuBuildHostNetStr(net, driver,
                                           ',', vlan,
                                           tapfdName, tapfdSize,
@@ -106,11 +105,10 @@ index 3ae9591..44a2cf0 100644
              goto cleanup;
          virCommandAddArgList(cmd, "-net", host, NULL);
      }
-diff --git a/src/qemu/qemu_command.h b/src/qemu/qemu_command.h
-index a96e57d..7beb56f 100644
---- a/src/qemu/qemu_command.h
-+++ b/src/qemu/qemu_command.h
-@@ -104,7 +104,8 @@ char *qemuBuildHostNetStr(virDomainNetDefPtr net,
+diff -Nuar libvirt-2.5.0.orig/src/qemu/qemu_command.h libvirt-2.5.0/src/qemu/qemu_command.h
+--- libvirt-2.5.0.orig/src/qemu/qemu_command.h	2017-08-02 21:13:59.792000000 -0700
++++ libvirt-2.5.0/src/qemu/qemu_command.h	2017-08-02 21:16:22.744000000 -0700
+@@ -88,7 +88,8 @@
                            char **tapfd,
                            size_t tapfdSize,
                            char **vhostfd,
@@ -120,53 +118,60 @@ index a96e57d..7beb56f 100644
  
  /* Legacy, pre device support */
  char *qemuBuildNicStr(virDomainNetDefPtr net,
-diff --git a/src/qemu/qemu_hotplug.c b/src/qemu/qemu_hotplug.c
-index f8db960..1d1b486 100644
---- a/src/qemu/qemu_hotplug.c
-+++ b/src/qemu/qemu_hotplug.c
-@@ -876,6 +876,7 @@ int qemuDomainAttachNetDevice(virConnectPtr conn,
-     virNetDevBandwidthPtr actualBandwidth;
-     virQEMUDriverConfigPtr cfg = virQEMUDriverGetConfig(driver);
-     size_t i;
+diff -Nuar libvirt-2.5.0.orig/src/qemu/qemu_hotplug.c libvirt-2.5.0/src/qemu/qemu_hotplug.c
+--- libvirt-2.5.0.orig/src/qemu/qemu_hotplug.c	2017-08-02 21:13:59.792000000 -0700
++++ libvirt-2.5.0/src/qemu/qemu_hotplug.c	2017-08-02 21:16:22.744000000 -0700
+@@ -963,6 +963,7 @@
+     bool charDevPlugged = false;
+     bool netdevPlugged = false;
+     bool hostPlugged = false;
 +    unsigned int queues = 0;
  
      /* preallocate new slot for device */
      if (VIR_REALLOC_N(vm->def->nets, vm->def->nnets + 1) < 0)
-@@ -904,7 +905,8 @@ int qemuDomainAttachNetDevice(virConnectPtr conn,
-     /* Currently nothing besides TAP devices supports multiqueue. */
-     if (net->driver.virtio.queues > 0 &&
-         !(actualType == VIR_DOMAIN_NET_TYPE_NETWORK ||
--          actualType == VIR_DOMAIN_NET_TYPE_BRIDGE)) {
-+          actualType == VIR_DOMAIN_NET_TYPE_BRIDGE ||
-+          actualType == VIR_DOMAIN_NET_TYPE_ETHERNET)) {
-         virReportError(VIR_ERR_CONFIG_UNSUPPORTED,
-                        _("Multiqueue network is not supported for: %s"),
-                        virDomainNetTypeToString(actualType));
-@@ -956,12 +958,17 @@ int qemuDomainAttachNetDevice(virConnectPtr conn,
-         if (qemuOpenVhostNet(vm->def, net, priv->qemuCaps, vhostfd, &vhostfdSize) < 0)
-             goto cleanup;
-     } else if (actualType == VIR_DOMAIN_NET_TYPE_ETHERNET) {
--        vhostfdSize = 1;
--        if (VIR_ALLOC(vhostfd) < 0)
--            goto cleanup;
--        *vhostfd = -1;
--        if (qemuOpenVhostNet(vm->def, net, priv->qemuCaps, vhostfd, &vhostfdSize) < 0)
--            goto cleanup;
+@@ -1049,23 +1050,25 @@
+         break;
+ 
+     case VIR_DOMAIN_NET_TYPE_ETHERNET:
+-        tapfdSize = vhostfdSize = net->driver.virtio.queues;
+-        if (!tapfdSize)
 +        queues = net->driver.virtio.queues;
 +        if (queues <= 1) {
 +            queues = 0;
-+            vhostfdSize = 1;
-+
-+            if (VIR_ALLOC(vhostfd) < 0)
+             tapfdSize = vhostfdSize = 1;
+-        queueSize = tapfdSize;
+-        if (VIR_ALLOC_N(tapfd, tapfdSize) < 0)
+-            goto cleanup;
+-        memset(tapfd, -1, sizeof(*tapfd) * tapfdSize);
+-        if (VIR_ALLOC_N(vhostfd, vhostfdSize) < 0)
+-            goto cleanup;
+-        memset(vhostfd, -1, sizeof(*vhostfd) * vhostfdSize);
+-        if (qemuInterfaceEthernetConnect(vm->def, driver, net,
+-                                         tapfd, tapfdSize) < 0)
+-            goto cleanup;
+-        iface_connected = true;
+-        if (qemuInterfaceOpenVhostNet(vm->def, net, priv->qemuCaps,
+-                                      vhostfd, &vhostfdSize) < 0)
+-            goto cleanup;
++            queueSize = tapfdSize;
++            if (VIR_ALLOC_N(tapfd, tapfdSize) < 0)
 +                goto cleanup;
-+            *vhostfd = -1;
-+            if (qemuOpenVhostNet(vm->def, net, priv->qemuCaps, vhostfd, &vhostfdSize) < 0)
++            memset(tapfd, -1, sizeof(*tapfd) * tapfdSize);
++            if (VIR_ALLOC_N(vhostfd, vhostfdSize) < 0)
++                goto cleanup;
++            memset(vhostfd, -1, sizeof(*vhostfd) * vhostfdSize);
++            if (qemuInterfaceEthernetConnect(vm->def, driver, net,
++                                             tapfd, tapfdSize) < 0)
++                goto cleanup;
++            iface_connected = true;
++            if (qemuInterfaceOpenVhostNet(vm->def, net, priv->qemuCaps,
++                                          vhostfd, &vhostfdSize) < 0)
 +                goto cleanup;
 +        }
-     }
+         break;
  
-     /* Set device online immediately */
-@@ -1041,13 +1048,17 @@ int qemuDomainAttachNetDevice(virConnectPtr conn,
+     case VIR_DOMAIN_NET_TYPE_HOSTDEV:
+@@ -1180,13 +1183,17 @@
          if (!(netstr = qemuBuildHostNetStr(net, driver,
                                             ',', -1,
                                             tapfdName, tapfdSize,
@@ -186,13 +191,13 @@ index f8db960..1d1b486 100644
              goto cleanup;
      }
  
-@@ -1080,7 +1091,8 @@ int qemuDomainAttachNetDevice(virConnectPtr conn,
+@@ -1230,7 +1237,8 @@
+         VIR_FORCE_CLOSE(vhostfd[i]);
  
-     if (virQEMUCapsGet(priv->qemuCaps, QEMU_CAPS_DEVICE)) {
-         if (!(nicstr = qemuBuildNicDevStr(vm->def, net, vlan, 0,
--                                          vhostfdSize, priv->qemuCaps)))
-+                                          queues ? queues : vhostfdSize,
-+                                          priv->qemuCaps)))
-             goto try_remove;
-     } else {
-         if (!(nicstr = qemuBuildNicStr(net, NULL, vlan)))
+     if (!(nicstr = qemuBuildNicDevStr(vm->def, net, vlan, 0,
+-                                      queueSize, priv->qemuCaps)))
++                                      queues ? queues : queueSize,
++                                      priv->qemuCaps)))
+         goto try_remove;
+ 
+     qemuDomainObjEnterMonitor(driver, vm);
