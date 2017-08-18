@@ -1,3 +1,9 @@
+dpdk-depends-packages (14.04-mitaka4) trusty; urgency=low
+
+  * Added vhost invalid access patch
+
+ -- Jeya ganesh babu J <jjeya@juniper.net>  Mon, 10 Jul 2017 11:55:46 -0800
+
 dpdk-depends-packages (14.04-mitaka3) trusty; urgency=low
 
   * Updated contrail-dpdk-kernel-modules-dkms to DPDK 17.02.
