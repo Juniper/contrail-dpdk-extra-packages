@@ -9,8 +9,8 @@ Build-Depends: debhelper (>= 7), dkms
 Package-List: 
  contrail-dpdk-kernel-modules-dkms deb misc optional
 Checksums-Sha1:
- ad1a42cfc0c5b1a16921fb7094d3deb81e8421bf 11901488 contrail-dpdk-kernel-modules-dkms_17.2.0.tar.gz
+ 9b6293c40d1d82dca81f035180682ff2447afb0e 11902712 contrail-dpdk-kernel-modules-dkms_17.2.0.tar.gz
 Checksums-Sha256:
- be059ef396b2f07b0a41b89b16a3c0255e485da8d80367ef2c39ca5fc9ae97ae 11901488 contrail-dpdk-kernel-modules-dkms_17.2.0.tar.gz
+ b35cfdc6a652cf6905c069f3fb43ec9d7bc2116e50e193542138608814163063 11902712 contrail-dpdk-kernel-modules-dkms_17.2.0.tar.gz
 Files:
- 56639e6d57b9987a4085ad6f78d43da0 11901488 contrail-dpdk-kernel-modules-dkms_17.2.0.tar.gz
+ b8b1327f631bd9633371944f1e441e69 11902712 contrail-dpdk-kernel-modules-dkms_17.2.0.tar.gz
