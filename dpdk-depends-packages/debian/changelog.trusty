@@ -1,3 +1,9 @@
+dpdk-depends-packages (14.04-liberty3) trusty; urgency=low
+
+  * Fixed updation of device features after a vhost-user process restart
+
+ -- Jeya ganesh babu J <jjeya@juniper.net>  Mon, 12 Feb 2018 11:30:18 -0800
+
 dpdk-depends-packages (14.04-liberty2) trusty; urgency=low
 
   * Updated contrail-dpdk-kernel-modules-dkms to DPDK 17.02.

@@ -2,7 +2,13 @@ diff --git a/debian/changelog b/debian/changelog
 index 8488107..8c10f1e 100644
 --- a/debian/changelog
 +++ b/debian/changelog
-@@ -1,3 +1,10 @@
+@@ -1,3 +1,16 @@
++qemu (2:2.3+dfsg-5ubuntu9.4~cloud0+contrail2) UNRELEASED; urgency=medium
++
++  * Fixed updation of device features after a vhost-user process restart
++
++ -- Jeya ganesh babu J <jjeya@juniper.net>  Mon, 12 Feb 2018 11:30:18 -0800
++
 +qemu (1:2.3+dfsg-5ubuntu9.4~cloud0+contrail1) UNRELEASED; urgency=medium
 +
 +  * Contrail patches for vhost connect and chardev reconnect
