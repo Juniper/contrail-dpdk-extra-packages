@@ -1,0 +1,13 @@
+diff -Naur qemu-2.5+dfsg.orig/hw/net/vhost_net.c qemu-2.5+dfsg/hw/net/vhost_net.c
+--- qemu-2.5+dfsg.orig/hw/net/vhost_net.c	2018-02-08 20:00:46.285173000 -0800
++++ qemu-2.5+dfsg/hw/net/vhost_net.c	2018-02-08 20:07:10.141173000 -0800
+@@ -234,6 +234,9 @@
+         goto fail_notifiers;
+     }
+ 
++    /* Set sane init value. Override when guest acks. */
++    vhost_net_ack_features(net, dev->guest_features);
++
+     r = vhost_dev_start(&net->dev, dev);
+     if (r < 0) {
+         goto fail_start;
