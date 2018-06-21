@@ -2,7 +2,7 @@ diff --git a/net/vhost-user.c b/net/vhost-user.c
 index b368a90..fc37b8f 100644
 --- a/net/vhost-user.c
 +++ b/net/vhost-user.c
-@@ -198,6 +198,12 @@ static void net_vhost_user_event(void *opaque, int event)
+@@ -199,6 +199,12 @@
      }
  }
  
@@ -15,21 +15,20 @@ index b368a90..fc37b8f 100644
  static int net_vhost_user_init(NetClientState *peer, const char *device,
                                 const char *name, CharDriverState *chr,
                                 int queues)
-@@ -218,7 +224,8 @@ static int net_vhost_user_init(NetClientState *peer, const char *device,
+@@ -222,7 +228,8 @@
          s->chr = chr;
      }
  
--    qemu_chr_add_handlers(chr, NULL, NULL, net_vhost_user_event, (void*)name);
+-    qemu_chr_add_handlers(chr, NULL, NULL, net_vhost_user_event, nc[0].name);
 +    qemu_chr_add_handlers(chr, net_vhost_user_can_receive, NULL,
-+                          net_vhost_user_event, (void*)name);
++                          net_vhost_user_event, nc[0].name);
  
      return 0;
  }
-diff --git a/qemu-char.c b/qemu-char.c
-index 2969c44..0f995f2 100644
---- a/qemu-char.c
-+++ b/qemu-char.c
-@@ -3571,7 +3571,7 @@ static void qemu_chr_parse_socket(QemuOpts *opts, ChardevBackend *backend,
+diff -Naur qemu-2.5+dfsg.old/qemu-char.c qemu-2.5+dfsg/qemu-char.c
+--- qemu-2.5+dfsg.old/qemu-char.c	2018-06-20 16:38:38.265173000 -0700
++++ qemu-2.5+dfsg/qemu-char.c	2018-06-20 16:40:36.629173000 -0700
+@@ -3571,7 +3571,7 @@
      bool is_waitconnect = is_listen && qemu_opt_get_bool(opts, "wait", true);
      bool is_telnet      = qemu_opt_get_bool(opts, "telnet", false);
      bool do_nodelay     = !qemu_opt_get_bool(opts, "delay", true);

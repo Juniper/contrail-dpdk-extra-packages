@@ -1,3 +1,9 @@
+dpdk-depends-packages (14.04-mod-all1) trusty; urgency=low
+
+  * Updated to latest mitaka version of qemu/libvirt
+
+ -- Jeya ganesh babu J <jjeya@juniper.net>  Wed, 20 Jun 2018 20:45:54 -0800
+
 dpdk-depends-packages (14.04-mitaka5) trusty; urgency=low
 
   * Fixed updation of device features after a vhost-user process restart
