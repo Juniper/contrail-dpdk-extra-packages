@@ -1,3 +1,21 @@
+dpdk-depends-packages (14.04-mod-all4) trusty; urgency=low
+
+  * Updated contrail-dpdk-kernel-modules-dkms to support retpoline kernel
+
+ -- Jeya ganesh babu J <jjeya@juniper.net>  Wed, 30 Jan 2019 03:01:15 -0800
+
+dpdk-depends-packages (14.04-mod-all3) trusty; urgency=low
+
+  * Updated qemu/libvirt version for upgrade
+
+ -- Jeya ganesh babu J <jjeya@juniper.net>  Wed, 03 Oct 2018 18:31:15 -0800
+
+dpdk-depends-packages (14.04-mod-all2) trusty; urgency=low
+
+  * Fixed qemu issue during vrouter restart
+
+ -- Jeya ganesh babu J <jjeya@juniper.net>  Wed, 24 Sep 2018 11:51:15 -0800
+
 dpdk-depends-packages (14.04-mod-all1) trusty; urgency=low
 
   * Updated to latest mitaka version of qemu/libvirt

@@ -2,7 +2,13 @@ diff --git a/debian/changelog b/debian/changelog
 index 7cad9d9..3a03f3b 100644
 --- a/debian/changelog
 +++ b/debian/changelog
-@@ -1,3 +1,10 @@
+@@ -1,3 +1,16 @@
++libvirt (2:1.3.1-1ubuntu10.19~cloud0+contrail2) UNRELEASED; urgency=medium
++
++  * Bumped up version
++
++ -- Jeya ganesh babu J <jjeya@juniper.net>  Wed, 03 Oct 2018 19:07:15 -0800
++
 +libvirt (1.3.1-1ubuntu10.19~cloud0+contrail1) UNRELEASED; urgency=medium
 +
 +  * Support multiqueues with ethernet type interfaces.
