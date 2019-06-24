@@ -2,28 +2,19 @@ diff --git a/debian/changelog b/debian/changelog
 index 594fac7..91783cf 100644
 --- a/debian/changelog
 +++ b/debian/changelog
-@@ -1,3 +1,24 @@
-+qemu (2:2.5+dfsg-5ubuntu10.29~cloud0+contrail3) UNRELEASED; urgency=medium
+@@ -1,3 +1,15 @@
++qemu (2:2.5+dfsg-5ubuntu10.39~cloud0+contrail2) UNRELEASED; urgency=medium
 +   
-+  * Bumped up the version
-+   
-+ -- Jeya ganesh babu J <jjeya@juniper.net>  Wed, 03 Oct 2018 14:45:10 -0800
++  * updated to new qemu and bumped up the version
++  
++ -- Jeya ganesh babu J <jjeya@juniper.net>  Wed, 04 Jun 2019 21:40:10 -0800
 +
-+qemu (1:2.5+dfsg-5ubuntu10.29~cloud0+contrail2) UNRELEASED; urgency=medium
-+   
-+  * Pulled in cleanup patch from newer version of qemu
-+  * https://github.com/qemu/qemu/commit/e0547b59dc0ead4c605d3f02d1c8829630a1311b
-+  * https://github.com/qemu/qemu/commit/5be5f9be724d43fbec3d6f955a43bc64a62d55cc
-+  * https://github.com/qemu/qemu/commit/7b527247f09740920d8bc8aaa5ef4445256ca478
-+   
-+ -- Jeya ganesh babu J <jjeya@juniper.net>  Fri, 21 Sep 2018 15:31:15 +0800
-+
-+qemu (1:2.5+dfsg-5ubuntu10.29~cloud0+contrail1) UNRELEASED; urgency=medium
++qemu (1:2.5+dfsg-5ubuntu10.39~cloud0+contrail1) UNRELEASED; urgency=medium
 +   
 +  * Contrail patches for vhost-user receive and chardev reconnect
 +   
 + -- Michal Dubiel <md@semihalf.com>  Tue, 14 Jun 2016 17:51:46 +0200
 +
- qemu (1:2.5+dfsg-5ubuntu10.29~cloud0) trusty-mitaka; urgency=medium
-
+ qemu (1:2.5+dfsg-5ubuntu10.39~cloud0) trusty-mitaka; urgency=medium
+ 
    * New update for the Ubuntu Cloud Archive.
