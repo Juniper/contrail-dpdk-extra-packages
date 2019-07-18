@@ -1,20 +1,24 @@
-diff --git a/debian/changelog b/debian/changelog
-index 594fac7..91783cf 100644
---- a/debian/changelog
-+++ b/debian/changelog
-@@ -1,3 +1,15 @@
+--- a/debian/changelog	2019-06-14 07:52:45.000000000 -0700
++++ b/debian/changelog	2019-07-18 00:39:09.197165513 -0700
+@@ -1,3 +1,21 @@
++qemu (2:2.5+dfsg-5ubuntu10.40~cloud0+contrail3) UNRELEASED; urgency=medium
++
++ * updated to new qemu and bumped up the version
++
++ -- Yuvaraja Mariappan <ymariappan@juniper.net> Wed, 17 Jun 2019 19:17:15 -0800
++
 +qemu (2:2.5+dfsg-5ubuntu10.39~cloud0+contrail2) UNRELEASED; urgency=medium
-+   
++
 +  * updated to new qemu and bumped up the version
-+  
++
 + -- Jeya ganesh babu J <jjeya@juniper.net>  Wed, 04 Jun 2019 21:40:10 -0800
 +
 +qemu (1:2.5+dfsg-5ubuntu10.39~cloud0+contrail1) UNRELEASED; urgency=medium
-+   
++
 +  * Contrail patches for vhost-user receive and chardev reconnect
-+   
++
 + -- Michal Dubiel <md@semihalf.com>  Tue, 14 Jun 2016 17:51:46 +0200
 +
- qemu (1:2.5+dfsg-5ubuntu10.39~cloud0) trusty-mitaka; urgency=medium
+ qemu (1:2.5+dfsg-5ubuntu10.40~cloud0) trusty-mitaka; urgency=medium
  
    * New update for the Ubuntu Cloud Archive.

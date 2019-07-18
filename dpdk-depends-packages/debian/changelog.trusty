@@ -1,3 +1,9 @@
+dpdk-depends-packages (14.04-mod-all6) trusty; urgency=low
+
+  * Updated qemu for vrouter restart issue
+
+ -- Yuvaraja Mariappan <ymariappan@juniper.net>  Wed, 17 Jun 2019 19:17:15 -0800
+
 dpdk-depends-packages (14.04-mod-all5) trusty; urgency=low
 
   * Updated libvirt and qemu for MDS mitigation
